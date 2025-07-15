@@ -1,6 +1,6 @@
 <div align="center">
 
-# PROJECT_NAME_URL
+# DOJ Case Research Agent
 
 A one-liner description of your project goes here.
 
@@ -39,3 +39,29 @@ venv/bin/python my_script.py
 # Get a comprehensive list of development tools
 just --list
 ```
+
+## Project Structure
+
+doj_research_agent/
+├── pyproject.toml
+├── README.md
+├── requirements.txt
+├── .gitignore
+├── src/
+│   └── doj_research_agent/
+│       ├── __init__.py
+│       ├── models.py
+│       ├── scraper.py
+│       ├── analyzer.py
+│       ├── categorizer.py
+│       ├── utils.py
+│       └── cli.py
+├── tests/
+│   ├── __init__.py
+│   ├── test_scraper.py
+│   ├── test_analyzer.py
+│   └── test_categorizer.py
+├── data/
+│   └── .gitkeep
+└── examples/
+    └── basic_usage.py
