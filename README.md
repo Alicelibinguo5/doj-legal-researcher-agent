@@ -17,8 +17,6 @@ Built to help my husband (a legal researcher) quickly find and analyze DOJ fraud
 
 ## How it Works
 
-![System Architecture Diagram](./agent.png)
-
 - **Streamlit Dashboard**: User-friendly web UI
 - **FastAPI Backend**: Handles scraping, analysis, and GPT-4o fraud detection
 - **Docker Compose**: One command to run everything
