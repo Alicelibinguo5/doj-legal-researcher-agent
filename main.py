@@ -146,9 +146,10 @@ def main():
     
     return cases
 
-def analyze_specific_category(category: ChargeCategory):
-    """Analyze cases for a specific charge category."""
-    config = ScrapingConfig(max_pages=3, max_cases=10, delay_between_requests=1.0)
+def analyze_specific_category(category: ChargeCategory, config=None):
+    """Analyze cases for a specific charge category, respecting the provided config."""
+    if config is None:
+        config = ScrapingConfig(max_pages=2, max_cases=5, delay_between_requests=1.0)
     
     scraper = DOJScraper(config)
     analyzer = CaseAnalyzer()
@@ -176,6 +177,8 @@ def analyze_specific_category(category: ChargeCategory):
                     if has_target_category:
                         cases.append(case_info)
                         print(f"Found relevant case: {case_info.title}")
+                    if len(cases) >= config.max_cases:
+                        break
         except Exception as e:
             print(f"Error analyzing {url}: {e}")
     
@@ -190,31 +193,41 @@ if __name__ == "__main__":
         print("\n" + "="*50)
         print("Analyzing specific categories...")
         
-        # Example: Focus on drug crimes
-        drug_cases = analyze_specific_category(ChargeCategory.DRUGS)
+        # Use the same config as main
+        config = ScrapingConfig(
+            max_pages=2,
+            max_cases=5,
+            delay_between_requests=1.0
+        )
         
-        # Example: Focus on financial fraud
-        financial_cases = analyze_specific_category(ChargeCategory.FINANCIAL_FRAUD)
+        # List of all major fraud-related categories
+        fraud_categories = [
+            ChargeCategory.FINANCIAL_FRAUD,
+            ChargeCategory.HEALTH_CARE_FRAUD,
+            ChargeCategory.DISASTER_FRAUD,
+            ChargeCategory.CONSUMER_PROTECTION,
+            ChargeCategory.CYBERCRIME,
+            ChargeCategory.FALSE_CLAIMS_ACT,
+            ChargeCategory.PUBLIC_CORRUPTION,
+            ChargeCategory.TAX,
+            ChargeCategory.IMMIGRATION,
+            ChargeCategory.INTELLECTUAL_PROPERTY
+        ]
         
-        # Example: Focus on cybercrime
-        cyber_cases = analyze_specific_category(ChargeCategory.CYBERCRIME)
+        category_results = {}
+        summary_counts = {}
+        for cat in fraud_categories:
+            cases = analyze_specific_category(cat, config)
+            key = f"{cat.value}_cases"
+            category_results[key] = [case.to_dict() for case in cases]
+            summary_counts[f"{cat.value}_cases_count"] = len(cases)
         
         # Save category analysis results
         output_dir = "output"
         os.makedirs(output_dir, exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
-        category_results = {
-            "drug_cases": [case.to_dict() for case in drug_cases],
-            "financial_fraud_cases": [case.to_dict() for case in financial_cases],
-            "cybercrime_cases": [case.to_dict() for case in cyber_cases],
-            "summary": {
-                "drug_cases_count": len(drug_cases),
-                "financial_fraud_cases_count": len(financial_cases),
-                "cybercrime_cases_count": len(cyber_cases)
-            }
-        }
-        
+        category_results["summary"] = summary_counts
         category_output_path = os.path.join(output_dir, f"category_analysis_{timestamp}.json")
         with open(category_output_path, "w") as f:
             json.dump(category_results, f, indent=2)

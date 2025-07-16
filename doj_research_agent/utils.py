@@ -103,52 +103,50 @@ def load_analysis_result(filepath: str) -> AnalysisResult:
     )
 
 
-def create_summary_report(cases: List[Any]) -> Dict[str, Any]:
-    """
-    Create summary statistics from cases, focusing on fraud and charge counts.
-    """
-    if not cases:
-        return {
-            'total_cases': 0,
-            'fraud_cases': 0,
-            'fraud_evidence': [],
-            'total_charges': 0,
-            'top_charges': {},
-        }
-    # Count all charges
-    all_charges = []
-    for case in cases:
-        if hasattr(case, 'charges'):
-            all_charges.extend(case.charges)
-        elif 'charges' in case:
-            all_charges.extend(case['charges'])
-    total_charges = len(all_charges)
-    # Top charges
-    if all_charges:
-        charge_counts = pd.Series(all_charges).value_counts()
-        top_charges = charge_counts.head(10).to_dict()
-    else:
-        top_charges = {}
-    # Fraud summary
+def create_summary_report(cases):
     fraud_cases = 0
     fraud_evidence = []
+    total_charges = 0
+    charge_counter = {}
+
     for case in cases:
-        fraud_info = getattr(case, 'fraud_info', None)
-        if fraud_info and getattr(fraud_info, 'is_fraud', False):
+        # Use GPT-4o fraud flag if available, else classic
+        is_fraud = False
+        evidence = None
+        charges = []
+
+        # Check for GPT-4o result
+        gpt4o = getattr(case, 'gpt4o', None) or (case.get('gpt4o') if isinstance(case, dict) else None)
+        if gpt4o:
+            is_fraud = gpt4o.get('fraud_flag', False)
+            evidence = gpt4o.get('fraud_evidence')
+            charges = gpt4o.get('charges', [])
+        else:
+            fraud_info = getattr(case, 'fraud_info', None)
+            is_fraud = fraud_info.is_fraud if fraud_info else False
+            evidence = fraud_info.evidence if fraud_info else None
+            charges = getattr(case, 'charges', []) or case.get('charges', [])
+
+        if is_fraud:
             fraud_cases += 1
-            if fraud_info.evidence:
-                fraud_evidence.append(fraud_info.evidence)
-        elif isinstance(case, dict) and 'is_fraud' in case:
-            if case['is_fraud']:
-                fraud_cases += 1
-                if 'fraud_evidence' in case and case['fraud_evidence']:
-                    fraud_evidence.append(case['fraud_evidence'])
+            if evidence:
+                fraud_evidence.append(evidence)
+
+        # Only count real charges (filter out penalty/statement phrases)
+        for charge in charges:
+            if len(charge) > 3 and 'penalty' not in charge.lower() and 'years in prison' not in charge.lower():
+                charge_counter[charge] = charge_counter.get(charge, 0) + 1
+                total_charges += 1
+
+    # Get top charges
+    top_charges = dict(sorted(charge_counter.items(), key=lambda x: x[1], reverse=True)[:10])
+
     return {
-        'total_cases': len(cases),
-        'fraud_cases': fraud_cases,
-        'fraud_evidence': fraud_evidence[:10],
-        'total_charges': total_charges,
-        'top_charges': top_charges,
+        "total_cases": len(cases),
+        "fraud_cases": fraud_cases,
+        "fraud_evidence": fraud_evidence,
+        "total_charges": total_charges,
+        "top_charges": top_charges
     }
 
 

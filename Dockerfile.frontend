@@ -1,0 +1,6 @@
+FROM python:3.12-slim
+WORKDIR /app
+COPY . .
+RUN pip install --no-cache-dir streamlit poetry && poetry install --no-interaction --no-ansi
+EXPOSE 8501
+CMD ["streamlit", "run", "streamlit_agent.py", "--server.port=8501", "--server.address=0.0.0.0"] 
