@@ -163,6 +163,42 @@ class CaseAnalyzer:
             evidence=evidence
         )
 
+    def _is_money_laundering_case(self, content: str):
+        """
+        Determine if a case involves money laundering based on content.
+        Returns a dict with is_money_laundering (bool) and evidence (str or None).
+        """
+        # Money laundering specific keywords (do NOT include these in fraud_keywords)
+        laundering_keywords = {
+            'money laundering', 'laundering', 'laundered', 'launder',
+            'cleaning money', 'proceeds of crime', 'illicit funds',
+            'placement', 'layering', 'integration',
+            'smurfing', 'structuring', 'shell company',
+            'front company', 'offshore account', 'hawala',
+            'bulk cash', 'wire transfer', 'bank secrecy',
+            'anti-money laundering', 'aml', 'financial crimes enforcement network',
+            'finCEN', 'suspicious activity report', 'sar',
+            'currency transaction report', 'ctr',
+            'unexplained wealth', 'concealment of proceeds',
+            'illegal proceeds', 'dirty money', 'clean money',
+        }
+        content_lower = content.lower()
+        found_keywords = []
+        for keyword in laundering_keywords:
+            if keyword in content_lower:
+                found_keywords.append(keyword)
+        is_laundering = len(found_keywords) > 0
+        evidence = None
+        if is_laundering and found_keywords:
+            first_keyword = found_keywords[0]
+            idx = content_lower.find(first_keyword)
+            if idx != -1:
+                start = max(0, idx - 60)
+                end = min(len(content), idx + 60)
+                evidence = content[start:end].strip()
+                evidence = f"Keywords found: {', '.join(found_keywords[:3])} - {evidence}"
+        return {"is_money_laundering": is_laundering, "evidence": evidence}
+
     def extract_main_article_content(self, soup: BeautifulSoup) -> str:
         # Try <article> tag first
         article = soup.find('article')
@@ -217,7 +253,9 @@ class CaseAnalyzer:
             charge_categories = self.categorizer.categorize_charges(charges, content)
             # Determine fraud info
             fraud_info = self._is_fraud_case(charge_categories, content)
-            # Attach fraud_info to CaseInfo (as an attribute)
+            # Determine money laundering info
+            laundering_info = self._is_money_laundering_case(content)
+            # Attach fraud_info and laundering_info to CaseInfo (as attributes)
             case_info = CaseInfo(
                 title=title,
                 date=date,
@@ -227,6 +265,8 @@ class CaseAnalyzer:
                 charge_categories=charge_categories
             )
             case_info.fraud_info = fraud_info
+            case_info.money_laundering_flag = laundering_info["is_money_laundering"]
+            case_info.money_laundering_evidence = laundering_info["evidence"]
             return case_info
             
         except Exception as e:
@@ -520,8 +560,11 @@ Press Release:
             result['classic_fraud_flag'] = bool(classic_fraud_info.is_fraud)
             result['classic_fraud_evidence'] = classic_fraud_info.evidence
             result['classic_fraud_categories'] = [cat.value for cat in charge_categories]
+            # --- Money laundering detection ---
+            laundering_info = self._is_money_laundering_case(text)
+            result['money_laundering_flag'] = laundering_info["is_money_laundering"]
+            result['money_laundering_evidence'] = laundering_info["evidence"]
             # ---
-
             return result
         except Exception as e:
             logger.error(f"Error parsing GPT-4o response: {e}")
