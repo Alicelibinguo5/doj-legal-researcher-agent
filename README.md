@@ -11,7 +11,9 @@ A friendly, end-to-end tool for exploring and categorizing DOJ press releases, w
 ---
 
 ## Why?
-Built to help my husband (a legal researcher) quickly find and analyze DOJ fraud cases. If you’re a legal pro, data nerd, or just curious, give it a try and let’s make legal research easier for everyone!
+The Association of Certified Fraud Examiners is the largest fraud fighting organization on the planet. In addition to providing a world-renowned certification, the ACFE also produces various research studies to support fraud examiners globally. These studies have primairly been based on surveys and responses from ACFE membership.
+
+This tool is an effort to expand the research capabilities of the ACFE by examining active U.S. Department of Justice (and, hopefully in the future, other jurisdictions) fraud and money laundering investigations, indictments, and recent convictions. The ability to rapidly analyze DOJ activity can help fraud examiners stay on top of new fraud trends and see what law enforcement is working on to better inform referrals and tips.
 
 ---
 
