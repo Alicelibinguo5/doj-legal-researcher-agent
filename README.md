@@ -6,7 +6,21 @@
 
 </div>
 
-A Python-based agent for automated analysis, categorization, and fraud detection in U.S. Department of Justice (DOJ) press releases. Designed for legal researchers, data scientists, and compliance professionals, this tool leverages both classic and GPT-4o-powered extraction to identify fraud cases, summarize trends, and provide a modern dashboard for exploration.
+A end to end system for automatically analyzing and categorizing DOJ press releases, with a focus on fraud detection and legal research. It provides a dashboard, API, and CLI for exploring and summarizing DOJ cases.
+
+---
+
+## Motivation
+This project was built to help my husband, a legal researcher, efficiently categorize and analyze fraud cases from the DOJ website. The goal is to save time, improve accuracy, and make legal research on fraud trends more accessible and reproducible.
+
+If you're a legal researcher (or just curious about DOJ fraud cases), feel free to use this tool, share it with colleagues, or suggest improvements. Pull requests and feedback are always welcome—let's make legal research a little easier for everyone!
+
+---
+
+## Architecture
+
+![System Architecture Diagram](agent.png)
+*System architecture: User interacts with Streamlit Dashboard, which communicates with a FastAPI backend for scraping, analysis, and GPT-4o-powered fraud detection.*
 
 ---
 
