@@ -25,15 +25,38 @@ class Disposition(Enum):
 
 
 class ChargeCategory(Enum):
-    """Enumeration of charge categories."""
-    FINANCIAL_CRIMES = "financial_crimes"
-    DRUG_CRIMES = "drug_crimes"
-    VIOLENT_CRIMES = "violent_crimes"
-    CYBERCRIME = "cybercrime"
-    PUBLIC_CORRUPTION = "public_corruption"
-    IMMIGRATION = "immigration"
+    """Enumeration of charge categories based on DOJ press release topics."""
+    ANTITRUST = "antitrust"
+    ASSET_FORFEITURE = "asset_forfeiture"
+    BANKRUPTCY = "bankruptcy"
     CIVIL_RIGHTS = "civil_rights"
+    CONSUMER_PROTECTION = "consumer_protection"
+    CYBERCRIME = "cybercrime"
+    DISASTER_FRAUD = "disaster_fraud"
+    DRUGS = "drugs"
+    ENVIRONMENT = "environment"
+    FALSE_CLAIMS_ACT = "false_claims_act"
+    FINANCIAL_FRAUD = "financial_fraud"
+    FIREARMS_OFFENSES = "firearms_offenses"
+    FOREIGN_CORRUPTION = "foreign_corruption"
+    HEALTH_CARE_FRAUD = "health_care_fraud"
+    IMMIGRATION = "immigration"
+    INTELLECTUAL_PROPERTY = "intellectual_property"
+    LABOR_EMPLOYMENT = "labor_employment"
+    NATIONAL_SECURITY = "national_security"
+    PUBLIC_CORRUPTION = "public_corruption"
+    TAX = "tax"
+    VIOLENT_CRIME = "violent_crime"
+    VOTING_ELECTIONS = "voting_elections"
     OTHER = "other"
+
+
+@dataclass
+class CaseFraudInfo:
+    """Indicates if a case is categorized as fraud, with evidence."""
+    is_fraud: bool
+    charge_categories: List[ChargeCategory] = field(default_factory=list)
+    evidence: Optional[str] = None  # e.g., text snippet or rationale
 
 
 @dataclass
@@ -44,10 +67,6 @@ class CaseInfo:
     url: str
     charges: List[str] = field(default_factory=list)
     case_type: CaseType = CaseType.UNKNOWN
-    defendant_name: str = "Unknown"
-    location: str = "Unknown"
-    disposition: Disposition = Disposition.UNKNOWN
-    description: str = ""
     charge_categories: List[ChargeCategory] = field(default_factory=list)
     extraction_date: Optional[datetime] = None
     
@@ -64,10 +83,6 @@ class CaseInfo:
             "url": self.url,
             "charges": self.charges,
             "case_type": self.case_type.value,
-            "defendant_name": self.defendant_name,
-            "location": self.location,
-            "disposition": self.disposition.value,
-            "description": self.description,
             "charge_categories": [cat.value for cat in self.charge_categories],
             "extraction_date": self.extraction_date.isoformat() if self.extraction_date else None
         }
@@ -81,13 +96,17 @@ class CaseInfo:
             url=data.get("url", ""),
             charges=data.get("charges", []),
             case_type=CaseType(data.get("case_type", "unknown")),
-            defendant_name=data.get("defendant_name", "Unknown"),
-            location=data.get("location", "Unknown"),
-            disposition=Disposition(data.get("disposition", "unknown")),
-            description=data.get("description", ""),
             charge_categories=[ChargeCategory(cat) for cat in data.get("charge_categories", [])],
             extraction_date=datetime.fromisoformat(data["extraction_date"]) if data.get("extraction_date") else None
         )
+
+
+@dataclass
+class CaseFraudInfo:
+    """Indicates if a case is categorized as fraud, with evidence."""
+    is_fraud: bool
+    charge_categories: List[ChargeCategory] = field(default_factory=list)
+    evidence: Optional[str] = None  # e.g., text snippet or rationale
 
 
 @dataclass

@@ -103,61 +103,53 @@ def load_analysis_result(filepath: str) -> AnalysisResult:
     )
 
 
-def create_summary_report(cases: List[CaseInfo]) -> Dict[str, Any]:
+def create_summary_report(cases: List[Any]) -> Dict[str, Any]:
     """
-    Create summary statistics from cases.
-    
-    Args:
-        cases: List of case information
-        
-    Returns:
-        Summary statistics dictionary
+    Create summary statistics from cases, focusing on fraud and charge counts.
     """
     if not cases:
         return {
             'total_cases': 0,
-            'disposition_breakdown': {},
-            'case_type_breakdown': {},
-            'charge_categories': {},
-            'locations': {},
+            'fraud_cases': 0,
+            'fraud_evidence': [],
+            'total_charges': 0,
             'top_charges': {},
         }
-    
-    # Convert to DataFrame for easier analysis
-    df = pd.DataFrame([case.to_dict() for case in cases])
-    
-    # Basic statistics
-    summary = {
-        'total_cases': len(cases),
-        'disposition_breakdown': df['disposition'].value_counts().to_dict(),
-        'case_type_breakdown': df['case_type'].value_counts().to_dict(),
-        'locations': df['location'].value_counts().head(10).to_dict(),
-    }
-    
-    # Analyze charge categories
-    all_categories = []
-    for case in cases:
-        all_categories.extend([cat.value for cat in case.charge_categories])
-    
-    if all_categories:
-        category_counts = pd.Series(all_categories).value_counts()
-        summary['charge_categories'] = category_counts.to_dict()
-    else:
-        summary['charge_categories'] = {}
-    
-    # Analyze top charges
+    # Count all charges
     all_charges = []
     for case in cases:
-        all_charges.extend(case.charges)
-    
+        if hasattr(case, 'charges'):
+            all_charges.extend(case.charges)
+        elif 'charges' in case:
+            all_charges.extend(case['charges'])
+    total_charges = len(all_charges)
+    # Top charges
     if all_charges:
-        # Get top 10 most common charges
         charge_counts = pd.Series(all_charges).value_counts()
-        summary['top_charges'] = charge_counts.head(10).to_dict()
+        top_charges = charge_counts.head(10).to_dict()
     else:
-        summary['top_charges'] = {}
-    
-    return summary
+        top_charges = {}
+    # Fraud summary
+    fraud_cases = 0
+    fraud_evidence = []
+    for case in cases:
+        fraud_info = getattr(case, 'fraud_info', None)
+        if fraud_info and getattr(fraud_info, 'is_fraud', False):
+            fraud_cases += 1
+            if fraud_info.evidence:
+                fraud_evidence.append(fraud_info.evidence)
+        elif isinstance(case, dict) and 'is_fraud' in case:
+            if case['is_fraud']:
+                fraud_cases += 1
+                if 'fraud_evidence' in case and case['fraud_evidence']:
+                    fraud_evidence.append(case['fraud_evidence'])
+    return {
+        'total_cases': len(cases),
+        'fraud_cases': fraud_cases,
+        'fraud_evidence': fraud_evidence[:10],
+        'total_charges': total_charges,
+        'top_charges': top_charges,
+    }
 
 
 def export_to_csv(cases: List[CaseInfo], filepath: str) -> None:

@@ -214,9 +214,7 @@ def list_cases(input_file: str, category: Optional[str], limit: int):
         for i, case in enumerate(cases[:limit]):
             console.print(f"\n[bold]{i+1}. {case.title}[/bold]")
             console.print(f"Date: {case.date}")
-            console.print(f"Disposition: {case.disposition.value}")
-            console.print(f"Defendant: {case.defendant_name}")
-            console.print(f"Location: {case.location}")
+            # Removed Disposition, Defendant, Location
             console.print(f"Categories: {', '.join([cat.value for cat in case.charge_categories])}")
             if case.charges:
                 console.print(f"Charges: {'; '.join(case.charges[:3])}{'...' if len(case.charges) > 3 else ''}")

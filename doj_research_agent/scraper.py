@@ -117,6 +117,65 @@ class DOJScraper:
             logger.error(f"Error fetching content from {url}: {e}")
             return None
     
+    def extract_indictment_number_from_url(self, url: str) -> str:
+        """Fetch a press release and extract the indictment number/details if present."""
+        soup = self.fetch_press_release_content(url)
+        if soup:
+            from .analyzer import CaseAnalyzer
+            analyzer = CaseAnalyzer()
+            content = analyzer._extract_content(soup)
+            return analyzer.extract_indictment_number(content)
+        return ""
+    
+    def extract_structured_info_gpt4o_from_url(self, url: str, api_key: str = None) -> dict:
+        """
+        Fetch a press release, extract the main text, and use GPT-4o to extract structured info.
+        Returns a dict with both classic and GPT-4o fields.
+        """
+        soup = self.fetch_press_release_content(url)
+        if soup:
+            from .analyzer import CaseAnalyzer
+            analyzer = CaseAnalyzer()
+            # Use classic extraction for structure
+            case_info = analyzer.analyze_press_release(url, soup)
+            # Use main article content for LLM
+            content = analyzer.extract_main_article_content(soup)
+            gpt_result = analyzer.extract_structured_info_gpt4o(content, api_key=api_key)
+            # Merge classic and GPT-4o results
+            result = case_info.to_dict() if case_info else {}
+            result['gpt4o'] = gpt_result
+            return result
+        return {"error": "Could not fetch or parse content."}
+    
+    def extract_fraud_info_from_url(self, url: str) -> dict:
+        """
+        Fetch a press release, analyze it, and return fraud info and charge count.
+        Returns a dict: {is_fraud, evidence, charge_count, charge_list}
+        """
+        from .analyzer import CaseAnalyzer
+        soup = self.fetch_press_release_content(url)
+        if soup:
+            analyzer = CaseAnalyzer()
+            case_info = analyzer.analyze_press_release(url, soup)
+            if case_info:
+                fraud_info = getattr(case_info, 'fraud_info', None)
+                is_fraud = fraud_info.is_fraud if fraud_info else False
+                evidence = fraud_info.evidence if fraud_info else None
+                charge_count = len(case_info.charges) if hasattr(case_info, 'charges') else 0
+                charge_list = case_info.charges if hasattr(case_info, 'charges') else []
+                return {
+                    'is_fraud': is_fraud,
+                    'evidence': evidence,
+                    'charge_count': charge_count,
+                    'charge_list': charge_list
+                }
+        return {
+            'is_fraud': False,
+            'evidence': None,
+            'charge_count': 0,
+            'charge_list': []
+        }
+    
     def close(self):
         """Close the session."""
         self.session.close()

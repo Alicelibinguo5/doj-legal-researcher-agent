@@ -30,38 +30,17 @@ just install
 Usage instructions go here.
 
 ```bash
-venv/bin/python my_script.py
+   python basic_usage.py
 ```
 
-## Development
+## (Optional) Run CLI commands:
+If you have a CLI (e.g., python -m doj_research_agent.cli ...), you can also test category listing and filtering:
 
-```bash
-# Get a comprehensive list of development tools
-just --list
+```
+   python -m doj_research_agent.cli categories
+   python -m doj_research_agent.cli analyze --max-pages 1 --max-cases 5
 ```
 
-## Project Structure
+---
 
-doj_research_agent/
-├── pyproject.toml
-├── README.md
-├── requirements.txt
-├── .gitignore
-├── src/
-│   └── doj_research_agent/
-│       ├── __init__.py
-│       ├── models.py
-│       ├── scraper.py
-│       ├── analyzer.py
-│       ├── categorizer.py
-│       ├── utils.py
-│       └── cli.py
-├── tests/
-│   ├── __init__.py
-│   ├── test_scraper.py
-│   ├── test_analyzer.py
-│   └── test_categorizer.py
-├── data/
-│   └── .gitkeep
-└── examples/
-    └── basic_usage.py
+**If you want, I can run the test command for you. Would you like me to do that?**
