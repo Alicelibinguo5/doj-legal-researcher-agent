@@ -7,9 +7,16 @@ from doj_research_agent import (
 import os
 import uuid
 from threading import Lock
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Or explicitly your frontend URL
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # In-memory job store (for demo; use Redis/db for production)
 jobs = {}
 jobs_lock = Lock()

@@ -26,9 +26,9 @@ if st.button("Run Analysis"):
         "fraud_type": None if fraud_type == "Any" else fraud_type
     }
     try:
-        BASE_URL  =os.environ.get("BACKEND_URL", "http://localhost:8000")
+        BASE_URL =os.environ.get("BACKEND_URL", "http://localhost:8000")
         # os.environ.get("BACKEND_URL", "http://backend:8000")
-
+        print(f"Calling API at: {BASE_URL}/analyze/")
         res = requests.post(f"{BASE_URL}/analyze/", json=payload, timeout=10)
         res.raise_for_status()
         job_id = res.json().get("job_id")
