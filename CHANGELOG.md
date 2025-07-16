@@ -1,5 +1,5 @@
 # CHANGELOG
 
-## v0.1.0 (2024-10-10)
+## v0.1.0 (2025-07-17)
 
-- Details go here
+- first end to end agentic system
