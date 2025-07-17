@@ -24,13 +24,15 @@ This tool is an effort to expand the research capabilities of the ACFE by examin
 - **Docker Compose**: One command to run everything
 
 ---
+## Architect
+
+![Architecture](./arch.png)
 
 ## Quickstart
 
 1. **Clone & Enter the Repo**
    ```bash
    git clone https://github.com/Alicelibinguo5/doj-legal-research-agent.git
-   cd doj-legal-research-agent
    ```
 2. **Run with Docker Compose**
    ```bash
@@ -48,7 +50,8 @@ This tool is an effort to expand the research capabilities of the ACFE by examin
    ```
 
 ---
-
+## Example Dashboard 
+image(../images/dashboard.png)
 ## Need Help?
 - Check the dashboard for tips
 - Use `docker compose logs` for debugging
