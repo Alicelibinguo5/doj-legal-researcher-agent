@@ -8,6 +8,10 @@ services:
     ports:
       - "8000:8000"
     command: uvicorn backend.main:app --host 0.0.0.0 --port 8000
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
 
   frontend:
     build:
@@ -19,4 +23,10 @@ services:
     environment:
       - BACKEND_URL=http://backend:8000
     depends_on:
-      - backend 
+      - backend
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379" 

@@ -6,7 +6,8 @@ from doj_research_agent import (
 )
 import os
 import uuid
-from threading import Lock
+import redis
+import json
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -18,8 +19,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 # In-memory job store (for demo; use Redis/db for production)
-jobs = {}
-jobs_lock = Lock()
+REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
+
+def set_job(job_id, data):
+    redis_client.set(f"job:{job_id}", json.dumps(data))
+
+def get_job(job_id):
+    data = redis_client.get(f"job:{job_id}")
+    return json.loads(data) if data else None
 
 class AnalysisRequest(BaseModel):
     query: Optional[str] = None  # Not used in this simple version, but could be for keyword search
@@ -36,31 +44,41 @@ class JobStatus(BaseModel):
 @app.post("/analyze/")
 def analyze(request: AnalysisRequest, background_tasks: BackgroundTasks):
     job_id = str(uuid.uuid4())
-    with jobs_lock:
-        jobs[job_id] = {"status": "pending", "result": None, "error": None}
+    set_job(job_id, {"status": "pending", "result": None, "error": None})
     background_tasks.add_task(run_agent_job, job_id, request)
     return {"job_id": job_id}
 
 @app.get("/job/{job_id}")
-def get_job(job_id: str):
-    with jobs_lock:
-        job = jobs.get(job_id)
-        if not job:
-            return {"error": "Job not found", "status": "not_found"}
-        return {"job_id": job_id, "status": job["status"], "result": job["result"], "error": job["error"]}
+def get_job_status(job_id: str):
+    job = get_job(job_id)
+    if not job:
+        return {"error": "Job not found", "status": "not_found"}
+    return {"job_id": job_id, "status": job["status"], "result": job["result"], "error": job["error"]}
 
 def run_agent_job(job_id: str, request: AnalysisRequest):
-    with jobs_lock:
-        jobs[job_id]["status"] = "running"
+    set_job(job_id, {"status": "running", "result": None, "error": None})
     try:
         results = run_agent(request.query, request.max_pages, request.max_cases, request.fraud_type)
-        with jobs_lock:
-            jobs[job_id]["status"] = "done"
-            jobs[job_id]["result"] = results
+        set_job(job_id, {"status": "done", "result": results, "error": None})
     except Exception as e:
-        with jobs_lock:
-            jobs[job_id]["status"] = "error"
-            jobs[job_id]["error"] = str(e)
+        set_job(job_id, {"status": "error", "result": None, "error": str(e)})
+
+# Helper to ensure charge_categories are always strings
+
+def case_to_clean_dict(case_info):
+    d = case_info.to_dict() if hasattr(case_info, 'to_dict') else dict(case_info)
+    # Convert charge_categories to string values if present
+    if 'charge_categories' in d:
+        d['charge_categories'] = [c if isinstance(c, str) else getattr(c, 'value', str(c)) for c in d['charge_categories']]
+    return d
+
+def clean_fraud_info(fraud_info):
+    if not fraud_info:
+        return None
+    d = fraud_info.__dict__.copy()
+    if 'charge_categories' in d:
+        d['charge_categories'] = [c if isinstance(c, str) else getattr(c, 'value', str(c)) for c in d['charge_categories']]
+    return d
 
 # Minimal agent runner using your backend logic
 def run_agent(query: Optional[str], max_pages: int, max_cases: int, fraud_type: Optional[str]) -> List[Any]:
@@ -88,10 +106,10 @@ def run_agent(query: Optional[str], max_pages: int, max_cases: int, fraud_type: 
                             has_target_category = True
                             break
                     if has_target_category:
-                        case_dict = case_info.to_dict()
+                        case_dict = case_to_clean_dict(case_info)
                         # Attach classic fraud_info if present
                         if hasattr(case_info, 'fraud_info') and case_info.fraud_info:
-                            case_dict['fraud_info'] = case_info.fraud_info.__dict__
+                            case_dict['fraud_info'] = clean_fraud_info(case_info.fraud_info)
                         # Attach money laundering info if present
                         if hasattr(case_info, 'money_laundering_flag'):
                             case_dict['money_laundering_flag'] = case_info.money_laundering_flag
@@ -113,10 +131,10 @@ def run_agent(query: Optional[str], max_pages: int, max_cases: int, fraud_type: 
             if soup:
                 case_info = analyzer.analyze_press_release(url, soup)
                 if case_info:
-                    case_dict = case_info.to_dict()
+                    case_dict = case_to_clean_dict(case_info)
                     # Attach classic fraud_info if present
                     if hasattr(case_info, 'fraud_info') and case_info.fraud_info:
-                        case_dict['fraud_info'] = case_info.fraud_info.__dict__
+                        case_dict['fraud_info'] = clean_fraud_info(case_info.fraud_info)
                     # Attach money laundering info if present
                     if hasattr(case_info, 'money_laundering_flag'):
                         case_dict['money_laundering_flag'] = case_info.money_laundering_flag
