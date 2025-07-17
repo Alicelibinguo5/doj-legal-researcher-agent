@@ -26,7 +26,7 @@ This tool is an effort to expand the research capabilities of the ACFE by examin
 ---
 ## Architect
 
-![Architecture](./arch.png)
+![Architecture](./images/arch.png)
 
 ## Quickstart
 
