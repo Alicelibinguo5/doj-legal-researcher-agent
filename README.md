@@ -51,7 +51,8 @@ This tool is an effort to expand the research capabilities of the ACFE by examin
 
 ---
 ## Example Dashboard 
-image(../images/dashboard.png)
+![Dashboard](./images/dashboard.png)
+
 ## Need Help?
 - Check the dashboard for tips
 - Use `docker compose logs` for debugging
