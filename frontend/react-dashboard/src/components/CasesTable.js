@@ -1,9 +1,47 @@
 import React, { useState } from 'react';
-import { ExternalLink, ChevronDown, ChevronUp, Filter } from 'lucide-react';
+import { ExternalLink, ChevronDown, ChevronUp, Filter, Download } from 'lucide-react';
+import FeedbackWidget from './FeedbackWidget';
+
+function toCSV(rows) {
+  if (!rows || rows.length === 0) return '';
+  const header = [
+    'Title', 'Date', 'Fraud Flag', 'Money Laundering Flag', 'Fraud Category', 'Reasoning', 'Charges', 'URL'
+  ];
+  const csvRows = [header.join(',')];
+  rows.forEach(row => {
+    const gpt4o = row.gpt4o;
+    const fraudInfo = row.fraud_info;
+    const fraudFlag = gpt4o ? gpt4o.fraud_flag : (fraudInfo && fraudInfo.is_fraud);
+    const launderingFlag = gpt4o ? gpt4o.money_laundering_flag : row.money_laundering_flag;
+    const fraudCategory = gpt4o ? gpt4o.fraud_type : (fraudInfo ? (fraudInfo.charge_categories || []).join('; ') : '');
+    const reasoning = gpt4o ? gpt4o.fraud_rationale : (fraudInfo && fraudInfo.evidence);
+    const charges = (row.charges || []).join('; ');
+    const url = row.url || '';
+    csvRows.push([
+      '"' + (row.title || '').replace(/"/g, '""') + '"',
+      '"' + (row.date || '') + '"',
+      fraudFlag ? 'Yes' : 'No',
+      launderingFlag ? 'Yes' : 'No',
+      '"' + (fraudCategory || '') + '"',
+      '"' + (reasoning || '') + '"',
+      '"' + charges + '"',
+      '"' + url + '"'
+    ].join(','));
+  });
+  return csvRows.join('\n');
+}
+
+const filterOptions = [
+  { value: 'all', label: 'All Cases' },
+  { value: 'fraud', label: 'Fraud Cases Only' },
+  { value: 'non-fraud', label: 'Non-Fraud Cases Only' },
+  { value: 'laundering', label: 'Money Laundering Only' },
+  { value: 'non-laundering', label: 'Non-Laundering Only' },
+];
 
 const CasesTable = ({ results }) => {
   const [expandedRows, setExpandedRows] = useState(new Set());
-  const [filterFraud, setFilterFraud] = useState('all');
+  const [filter, setFilter] = useState('all');
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
 
@@ -64,8 +102,11 @@ const CasesTable = ({ results }) => {
   // Filter and sort results
   let filteredResults = results.filter(case_ => {
     const fraudFlag = getFraudFlag(case_);
-    if (filterFraud === 'fraud' && !fraudFlag) return false;
-    if (filterFraud === 'non-fraud' && fraudFlag) return false;
+    const launderingFlag = getMoneyLaunderingFlag(case_);
+    if (filter === 'fraud' && !fraudFlag) return false;
+    if (filter === 'non-fraud' && fraudFlag) return false;
+    if (filter === 'laundering' && !launderingFlag) return false;
+    if (filter === 'non-laundering' && launderingFlag) return false;
     return true;
   });
 
@@ -107,6 +148,19 @@ const CasesTable = ({ results }) => {
     }
   };
 
+  const handleDownloadCSV = () => {
+    const csv = toCSV(filteredResults);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'doj_research_results.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const SortIcon = ({ field }) => {
     if (sortBy !== field) return <ChevronDown className="w-4 h-4 text-gray-400" />;
     return sortOrder === 'asc' ? 
@@ -118,18 +172,25 @@ const CasesTable = ({ results }) => {
     <div className="card">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-lg font-semibold text-gray-900">Case Results ({filteredResults.length})</h3>
-        
         <div className="flex items-center space-x-4">
+          <button
+            onClick={handleDownloadCSV}
+            className="btn-secondary flex items-center space-x-2"
+            title="Download CSV"
+          >
+            <Download className="w-4 h-4" />
+            <span>Download CSV</span>
+          </button>
           <div className="flex items-center space-x-2">
             <Filter className="w-4 h-4 text-gray-500" />
             <select
-              value={filterFraud}
-              onChange={(e) => setFilterFraud(e.target.value)}
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
               className="text-sm border border-gray-300 rounded px-2 py-1"
             >
-              <option value="all">All Cases</option>
-              <option value="fraud">Fraud Cases Only</option>
-              <option value="non-fraud">Non-Fraud Cases Only</option>
+              {filterOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -271,6 +332,17 @@ const CasesTable = ({ results }) => {
                                 )}
                               </div>
                             </div>
+                          </div>
+                          
+                          {/* Feedback Widget */}
+                          <div className="border-t pt-4">
+                            <h4 className="font-medium text-gray-900 mb-3">Help us improve</h4>
+                            <FeedbackWidget 
+                              caseData={case_}
+                              onFeedbackSubmitted={(feedbackType, feedbackId) => {
+                                console.log(`Feedback submitted for case ${index}: ${feedbackType} (ID: ${feedbackId})`);
+                              }}
+                            />
                           </div>
                         </div>
                       </td>

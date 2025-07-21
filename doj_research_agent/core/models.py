@@ -118,6 +118,7 @@ class ScrapingConfig:
     user_agent: str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     start_date: Optional[str] = None
     end_date: Optional[str] = None
+    filter_video_content: bool = True  # Enable video content filtering by default
 
 
 @dataclass
@@ -145,3 +146,23 @@ class AnalysisResult:
             "success_rate": self.success_rate(),
             "analysis_date": self.analysis_date.isoformat()
         }
+
+
+@dataclass
+class FeedbackData:
+    """Data structure for user feedback."""
+    case_id: str
+    url: str
+    user_feedback: str  # "positive", "negative", or "neutral"
+    feedback_text: Optional[str] = None  # Optional detailed feedback
+    timestamp: Optional[datetime] = None
+    model_prediction: Optional[dict] = None  # Store the original prediction
+    confidence_score: Optional[float] = None
+
+@dataclass
+class FeedbackResult:
+    """Result of feedback processing."""
+    success: bool
+    message: str
+    feedback_id: Optional[str] = None
+    training_data_updated: bool = False

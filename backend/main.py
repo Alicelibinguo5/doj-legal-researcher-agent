@@ -1,10 +1,15 @@
 from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
 from typing import Optional, List, Any
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 from doj_research_agent import (
     DOJScraper, ScrapingConfig, CaseAnalyzer, ChargeCategory
 )
-import os
+from doj_research_agent.core.feedback_manager import FeedbackManager
+from doj_research_agent.core.models import FeedbackData
 import uuid
 import redis
 import json
@@ -22,6 +27,9 @@ app.add_middleware(
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
 
+# Initialize feedback manager
+feedback_manager = FeedbackManager()
+
 def set_job(job_id, data):
     redis_client.set(f"job:{job_id}", json.dumps(data))
 
@@ -34,6 +42,14 @@ class AnalysisRequest(BaseModel):
     max_pages: int = 2
     max_cases: int = 5
     fraud_type: Optional[str] = None  # e.g., 'financial_fraud', 'cybercrime', etc.
+
+class FeedbackRequest(BaseModel):
+    case_id: str
+    url: str
+    user_feedback: str  # "positive", "negative", or "neutral"
+    feedback_text: Optional[str] = None
+    model_prediction: Optional[dict] = None
+    confidence_score: Optional[float] = None
 
 class JobStatus(BaseModel):
     job_id: str
@@ -58,6 +74,67 @@ def get_job_status(job_id: str):
 @app.get("/")
 def root():
     return {"message": "DOJ Research Agent API is running."}
+
+@app.post("/feedback/")
+def submit_feedback(feedback: FeedbackRequest):
+    """Submit user feedback for a case."""
+    try:
+        feedback_data = FeedbackData(
+            case_id=feedback.case_id,
+            url=feedback.url,
+            user_feedback=feedback.user_feedback,
+            feedback_text=feedback.feedback_text,
+            model_prediction=feedback.model_prediction,
+            confidence_score=feedback.confidence_score
+        )
+        
+        result = feedback_manager.add_feedback(feedback_data)
+        
+        return {
+            "success": result.success,
+            "message": result.message,
+            "feedback_id": result.feedback_id
+        }
+    except Exception as e:
+        return {"success": False, "message": f"Error processing feedback: {str(e)}"}
+
+@app.get("/feedback/stats")
+def get_feedback_stats():
+    """Get feedback statistics."""
+    try:
+        stats = feedback_manager.get_feedback_stats()
+        return stats
+    except Exception as e:
+        return {"error": f"Error getting feedback stats: {str(e)}"}
+
+@app.get("/feedback/case/{case_id}")
+def get_case_feedback(case_id: str):
+    """Get all feedback for a specific case."""
+    try:
+        feedback_list = feedback_manager.get_feedback_for_case(case_id)
+        return {
+            "case_id": case_id,
+            "feedback_count": len(feedback_list),
+            "feedback": [{
+                "user_feedback": f.user_feedback,
+                "feedback_text": f.feedback_text,
+                "timestamp": f.timestamp.isoformat() if f.timestamp else None
+            } for f in feedback_list]
+        }
+    except Exception as e:
+        return {"error": f"Error getting case feedback: {str(e)}"}
+
+@app.post("/feedback/export")
+def export_training_data():
+    """Export feedback data for model training."""
+    try:
+        success = feedback_manager.export_training_data()
+        return {
+            "success": success,
+            "message": "Training data exported successfully" if success else "Failed to export training data"
+        }
+    except Exception as e:
+        return {"success": False, "message": f"Error exporting training data: {str(e)}"}
 
 def run_agent_job(job_id: str, request: AnalysisRequest):
     set_job(job_id, {"status": "running", "result": None, "error": None})

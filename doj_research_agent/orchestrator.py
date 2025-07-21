@@ -8,7 +8,8 @@ import operator
 from langgraph.graph import StateGraph, END
 
 from .analysis.analyzer import CaseAnalyzer
-from .core.models import AnalysisResult, CaseInfo, ScrapingConfig
+from .core.models import AnalysisResult, CaseInfo, ScrapingConfig, FeedbackData
+from .core.feedback_manager import FeedbackManager
 from .scraping.scraper import DOJScraper
 from .core.utils import save_analysis_result, setup_logger
 from .evaluation.evaluate import FraudDetectionEvaluator
@@ -26,6 +27,8 @@ class ResearchState(TypedDict):
     scraping_config: ScrapingConfig
     final_result: Optional[AnalysisResult]
     evaluation_result: Optional[EvaluationResult]
+    feedback_manager: Optional[FeedbackManager]
+    pending_feedback: Annotated[List[FeedbackData], operator.add]
 
 
 class ResearchOrchestrator:
@@ -52,6 +55,7 @@ class ResearchOrchestrator:
         workflow.add_node("analyze_url", self._analyze_url_node)
         workflow.add_node("compile_results", self._compile_results_node)
         workflow.add_node("evaluate_results", self._evaluate_results_node)
+        workflow.add_node("process_feedback", self._process_feedback_node)
 
         # Set the entrypoint
         workflow.set_entry_point("fetch_urls")
@@ -67,7 +71,8 @@ class ResearchOrchestrator:
             },
         )
         workflow.add_edge("compile_results", "evaluate_results")
-        workflow.add_edge("evaluate_results", END)
+        workflow.add_edge("evaluate_results", "process_feedback")
+        workflow.add_edge("process_feedback", END)
 
         return workflow.compile()
 
@@ -137,15 +142,53 @@ class ResearchOrchestrator:
     def _evaluate_results_node(self, state: ResearchState) -> dict:
         """Evaluates the analysis results."""
         logger.info("Evaluating analysis results...")
-        evaluator = FraudDetectionEvaluator()
         
-        # For now, we use the default test dataset from the evaluator
-        # In a real scenario, you might load a dedicated test set
-        test_cases = evaluator.create_test_dataset()
+        if not state["analyzed_cases"]:
+            logger.warning("No cases to evaluate.")
+            return {"evaluation_result": None}
+        
+        evaluator = FraudDetectionEvaluator()
+        # Create test cases from analyzed cases for evaluation
+        test_cases = []
+        for case in state["analyzed_cases"]:
+            test_case = TestCase(
+                text=case.title,  # Use title as text since content is not available
+                expected_fraud_flag=case.fraud_info.is_fraud if case.fraud_info else False,
+                expected_fraud_type=None,  # CaseFraudInfo doesn't have fraud_type field
+                expected_money_laundering_flag=case.money_laundering_flag or False,
+                title=case.title,
+                source_url=case.url
+            )
+            test_cases.append(test_case)
         
         evaluation_result = evaluator.evaluate_dataset(test_cases)
-        logger.info(f"Evaluation complete. Accuracy: {evaluation_result.accuracy:.2f}")
+        
+        logger.info(f"Evaluation completed. Accuracy: {evaluation_result.accuracy:.2f}")
         return {"evaluation_result": evaluation_result}
+
+    def _process_feedback_node(self, state: ResearchState) -> dict:
+        """Process any pending feedback for model improvement."""
+        logger.info("Processing feedback for model improvement...")
+        
+        # Initialize feedback manager if not present
+        feedback_manager = state.get("feedback_manager")
+        if not feedback_manager:
+            feedback_manager = FeedbackManager()
+        
+        # Process any pending feedback
+        processed_count = 0
+        for feedback in state.get("pending_feedback", []):
+            result = feedback_manager.add_feedback(feedback)
+            if result.success:
+                processed_count += 1
+                logger.info(f"Feedback processed: {result.feedback_id}")
+            else:
+                logger.error(f"Failed to process feedback: {result.message}")
+        
+        if processed_count > 0:
+            logger.info(f"Processed {processed_count} feedback items")
+        
+        return {"pending_feedback": [], "feedback_manager": feedback_manager}
 
     def run(self, max_cases: Optional[int] = None) -> AnalysisResult:
         """
@@ -169,6 +212,8 @@ class ResearchOrchestrator:
             "scraping_config": self.scraping_config,
             "final_result": None,
             "evaluation_result": None,
+            "feedback_manager": None,
+            "pending_feedback": [],
         }
 
         final_state = self.graph.invoke(initial_state)

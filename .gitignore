@@ -9,3 +9,20 @@ htmlcov
 venv
 output/*
 debug/*
+.cursorrule
+frontend/react-dashboard/node_modules/.cache/
+# Temp files and folders
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.bak
+*.orig
+*.log
+*.pid
+*.lock
+.cache/
+tmp/
+temp/
+logs/

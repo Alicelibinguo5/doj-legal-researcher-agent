@@ -13,6 +13,9 @@ const Header = () => {
             <div>
               <h1 className="text-2xl font-bold text-gray-900">DOJ Research Agent</h1>
               <p className="text-sm text-gray-600">Legal Fraud Detection Dashboard</p>
+              <p className="text-sm text-primary-700 mt-2 font-medium">
+                Analyze DOJ press releases for fraud and money laundering using LLM-powered agents. Results are explainable, filterable, and downloadable.
+              </p>
             </div>
           </div>
           

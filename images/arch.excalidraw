@@ -1,0 +1,114 @@
+{
+    "type": "excalidraw",
+    "version": 2,
+    "source": "doj-research-agent-arch",
+    "elements": [
+      {
+        "type": "rectangle",
+        "x": 100,
+        "y": 40,
+        "width": 180,
+        "height": 60,
+        "angle": 0,
+        "strokeColor": "#1d4ed8",
+        "backgroundColor": "transparent",
+        "strokeWidth": 2,
+        "text": "User\n(Browser)",
+        "fontSize": 18
+      },
+      {
+        "type": "rectangle",
+        "x": 100,
+        "y": 140,
+        "width": 220,
+        "height": 60,
+        "angle": 0,
+        "strokeColor": "#3b82f6",
+        "backgroundColor": "transparent",
+        "strokeWidth": 2,
+        "text": "React Dashboard\n(Frontend)",
+        "fontSize": 18
+      },
+      {
+        "type": "rectangle",
+        "x": 100,
+        "y": 260,
+        "width": 220,
+        "height": 60,
+        "angle": 0,
+        "strokeColor": "#f59e42",
+        "backgroundColor": "transparent",
+        "strokeWidth": 2,
+        "text": "FastAPI Backend",
+        "fontSize": 18
+      },
+      {
+        "type": "rectangle",
+        "x": 400,
+        "y": 260,
+        "width": 220,
+        "height": 60,
+        "angle": 0,
+        "strokeColor": "#10b981",
+        "backgroundColor": "transparent",
+        "strokeWidth": 2,
+        "text": "LLM Agent\n(LangGraph, LangChain,\nLLM Judge, RAGAS)",
+        "fontSize": 16
+      },
+      {
+        "type": "rectangle",
+        "x": 400,
+        "y": 360,
+        "width": 220,
+        "height": 60,
+        "angle": 0,
+        "strokeColor": "#f43f5e",
+        "backgroundColor": "transparent",
+        "strokeWidth": 2,
+        "text": "Langfuse\n(Tracing/Scoring)",
+        "fontSize": 18
+      },
+      {
+        "type": "rectangle",
+        "x": 100,
+        "y": 360,
+        "width": 120,
+        "height": 60,
+        "angle": 0,
+        "strokeColor": "#6366f1",
+        "backgroundColor": "transparent",
+        "strokeWidth": 2,
+        "text": "Redis\n(Job Queue)",
+        "fontSize": 18
+      },
+      {
+        "type": "rectangle",
+        "x": 700,
+        "y": 260,
+        "width": 180,
+        "height": 60,
+        "angle": 0,
+        "strokeColor": "#fbbf24",
+        "backgroundColor": "transparent",
+        "strokeWidth": 2,
+        "text": "External LLM APIs\n(OpenAI, Anthropic)",
+        "fontSize": 16
+      },
+      {
+        "type": "rectangle",
+        "x": 700,
+        "y": 360,
+        "width": 180,
+        "height": 60,
+        "angle": 0,
+        "strokeColor": "#22d3ee",
+        "backgroundColor": "transparent",
+        "strokeWidth": 2,
+        "text": "DOJ Press Release\nSource (Scraper)",
+        "fontSize": 16
+      }
+    ],
+    "appState": {
+      "viewBackgroundColor": "#ffffff"
+    }
+  }

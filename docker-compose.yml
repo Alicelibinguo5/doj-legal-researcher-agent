@@ -13,13 +13,13 @@ services:
     depends_on:
       - redis
 
-  frontend:
+  react-frontend:
     build:
       context: .
-      dockerfile: Dockerfile.frontend
-    container_name: frontend
+      dockerfile: Dockerfile.react
+    container_name: react-frontend
     ports:
-      - "8501:8501"
+      - "3000:80"
     environment:
       - BACKEND_URL=http://backend:8000
     depends_on:

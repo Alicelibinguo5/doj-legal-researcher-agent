@@ -4,6 +4,7 @@ import logging
 import time
 from typing import List, Optional
 from urllib.parse import urljoin, urlparse
+import re
 
 import requests
 from bs4 import BeautifulSoup
@@ -91,17 +92,98 @@ class DOJScraper:
     def _is_press_release_url(self, url: str) -> bool:
         """
         Check if URL is a press release URL.
-        
+        Excludes DOJ video pages and video formats.
         Args:
             url: URL to check
-            
         Returns:
             True if URL appears to be a press release
         """
+        # Exclude DOJ video pages and video-related paths
+        video_paths = [
+            '/news/videos',
+            '/video',
+            '/videos',
+            '/media/video',
+            '/media/videos',
+            '/multimedia/video',
+            '/multimedia/videos'
+        ]
+        
+        for video_path in video_paths:
+            if video_path in url.lower():
+                return False
+        
+        # Exclude common video file extensions
+        video_extensions = [
+            r'\.(mp4|mov|avi|wmv|flv|webm|mkv|m4v|3gp|ogv|ts|mts|m2ts)(\?|$)',
+            r'\.(mp3|wav|aac|ogg|wma|flac)(\?|$)',
+            r'\.(gif|webp)(\?|$)'
+        ]
+        
+        for pattern in video_extensions:
+            if re.search(pattern, url, re.IGNORECASE):
+                return False
+        
+        # Exclude video streaming and player URLs
+        video_platforms = [
+            'youtube.com',
+            'vimeo.com',
+            'dailymotion.com',
+            'brightcove.com',
+            'jwplayer.com',
+            'video.js',
+            'player'
+        ]
+        
+        for platform in video_platforms:
+            if platform in url.lower():
+                return False
+        
         # Common patterns for DOJ press release URLs
         patterns = ['/pr/', '/press-release/', '/news/', '/opa/pr/']
         return any(pattern in url for pattern in patterns)
     
+    def _filter_video_content(self, soup: BeautifulSoup) -> BeautifulSoup:
+        """
+        Remove video-related content from the page.
+        
+        Args:
+            soup: BeautifulSoup object of the page
+            
+        Returns:
+            BeautifulSoup object with video content removed
+        """
+        # Remove video elements
+        video_selectors = [
+            'video',
+            'iframe[src*="youtube"]',
+            'iframe[src*="vimeo"]',
+            'iframe[src*="dailymotion"]',
+            'iframe[src*="brightcove"]',
+            'iframe[src*="jwplayer"]',
+            '.video-player',
+            '.video-container',
+            '[class*="video"]',
+            '[id*="video"]'
+        ]
+        
+        for selector in video_selectors:
+            for element in soup.select(selector):
+                element.decompose()
+        
+        # Remove video-related text content
+        video_keywords = [
+            'video', 'videos', 'multimedia', 'media player',
+            'play video', 'watch video', 'video player'
+        ]
+        
+        # Find and remove paragraphs or divs that contain only video-related text
+        for element in soup.find_all(['p', 'div', 'span']):
+            if element.get_text().strip().lower() in video_keywords:
+                element.decompose()
+        
+        return soup
+
     def fetch_press_release_content(self, url: str) -> Optional[BeautifulSoup]:
         """
         Fetch content of a single press release.
@@ -117,6 +199,11 @@ class DOJScraper:
             response.raise_for_status()
             
             soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # Filter out video content if enabled
+            if self.config.filter_video_content:
+                soup = self._filter_video_content(soup)
+            
             return soup
             
         except Exception as e:

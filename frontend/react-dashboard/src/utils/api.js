@@ -1,62 +1,96 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 30000,
-});
-
+// Analysis functions
 export const analyzeCases = async (params) => {
   try {
-    const response = await api.post('/analyze/', {
-      max_pages: params.maxPages,
-      max_cases: params.maxCases,
-      fraud_type: params.fraudType === 'Any' ? null : params.fraudType
-    });
+    console.log('🚀 Starting analysis with params:', params);
+    console.log('📡 Making POST request to:', `${API_BASE_URL}/analyze/`);
+    
+    const response = await axios.post(`${API_BASE_URL}/analyze/`, params);
+    console.log('✅ Analysis started successfully:', response.data);
     return response.data;
   } catch (error) {
-    throw new Error(`Analysis failed: ${error.response?.data?.detail || error.message}`);
+    console.error('❌ Error starting analysis:', error);
+    throw error;
   }
 };
 
 export const getJobStatus = async (jobId) => {
   try {
-    const response = await api.get(`/job/${jobId}`);
+    console.log('📊 Checking job status for:', jobId);
+    const response = await axios.get(`${API_BASE_URL}/job/${jobId}`);
+    console.log('📊 Job status received:', response.data);
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to get job status: ${error.response?.data?.detail || error.message}`);
+    console.error('❌ Error getting job status:', error);
+    throw error;
   }
 };
 
-export const pollJobStatus = async (jobId, onProgress) => {
-  const maxAttempts = 60; // 2 minutes with 2-second intervals
-  let attempts = 0;
-  
-  while (attempts < maxAttempts) {
-    try {
-      const jobData = await getJobStatus(jobId);
-      
-      if (onProgress) {
-        onProgress(jobData);
+export const pollJobStatus = async (jobId, onUpdate) => {
+  return new Promise((resolve, reject) => {
+    const poll = async () => {
+      try {
+        const status = await getJobStatus(jobId);
+        onUpdate(status);
+        
+        if (status.status === 'done') {
+          resolve(status.result || []);
+        } else if (status.status === 'error') {
+          reject(new Error(status.error || 'Job failed'));
+        } else {
+          // Continue polling
+          setTimeout(poll, 2000);
+        }
+      } catch (error) {
+        console.error('Error polling job status:', error);
+        reject(error);
       }
-      
-      if (jobData.status === 'done') {
-        return jobData.result;
-      }
-      
-      if (jobData.status === 'error') {
-        throw new Error(jobData.error || 'Job failed');
-      }
-      
-      // Wait 2 seconds before next poll
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      attempts++;
-      
-    } catch (error) {
-      throw error;
-    }
+    };
+    
+    poll();
+  });
+};
+
+// Feedback functions
+export const submitFeedback = async (feedbackData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/feedback/`, feedbackData);
+    return response.data;
+  } catch (error) {
+    console.error('Error submitting feedback:', error);
+    throw error;
   }
-  
-  throw new Error('Job polling timed out');
+};
+
+export const getFeedbackStats = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/feedback/stats`);
+    return response.data;
+  } catch (error) {
+    console.error('Error getting feedback stats:', error);
+    throw error;
+  }
+};
+
+export const getCaseFeedback = async (caseId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/feedback/case/${caseId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error getting case feedback:', error);
+    throw error;
+  }
+};
+
+export const exportTrainingData = async () => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/feedback/export`);
+    return response.data;
+  } catch (error) {
+    console.error('Error exporting training data:', error);
+    throw error;
+  }
 }; 

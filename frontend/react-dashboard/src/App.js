@@ -5,6 +5,7 @@ import ProgressIndicator from './components/ProgressIndicator';
 import StatsCards from './components/StatsCards';
 import ChargesChart from './components/ChargesChart';
 import CasesTable from './components/CasesTable';
+import FeedbackStats from './components/FeedbackStats';
 import { analyzeCases, pollJobStatus } from './utils/api';
 
 const LOCAL_STORAGE_KEY = 'doj_research_last_results';
@@ -149,6 +150,7 @@ function App() {
 
               {/* Cases Table */}
               <CasesTable results={results} />
+              <FeedbackStats results={results} />
             </>
           )}
 
