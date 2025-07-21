@@ -20,7 +20,7 @@ Use these keywords to identify money laundering cases:
 
 A case should be marked as fraud/money laundering if it contains any of these keywords in a legally relevant context, or involves deceptive practices, schemes, or false representations as defined by law. 
  1. Do not mark as fraud or money laundering for generic mentions or unrelated uses of the word.
- When matching keywords, make sure whole word matches, not match of middle of characters
+ 2. When matching keywords, make sure whole word matches, not match of middle of characters
 
 LOGICAL CONSISTENCY RULES:
 - If you set fraud_type or fraud_evidence, you MUST set fraud_flag to true.
@@ -49,4 +49,21 @@ FRAUD_KEYWORDS = {
     "intellectual_property_fraud": ["counterfeiting", "piracy", "bootleg", "trademark infringement", "copyright infringement", "intellectual property theft", "fake goods", "counterfeit products"]
 } 
 
-MONEY_LAUNDERING_KEYWORD =  {"money_laundering": ["money laundering", "laundering", "laundered", "launder", "cleaning money", "proceeds of crime", "illicit funds", "placement", "layering", "integration", "smurfing", "structuring", "shell company", "front company", "offshore account", "hawala", "bulk cash", "wire transfer", "bank secrecy", "anti-money laundering", "aml", "financial crimes enforcement network", "finCEN", "suspicious activity report", "sar", "currency transaction report", "ctr", "unexplained wealth", "concealment of proceeds", "illegal proceeds", "dirty money", "clean money"]}
+MONEY_LAUNDERING_KEYWORD =  {
+    "money_laundering": ["money laundering", "laundering", "laundered", "launder", "cleaning money", "proceeds of crime", "illicit funds", "placement", "layering", "integration", "smurfing", "structuring", "shell company", "front company", "offshore account", "hawala", "bulk cash", "wire transfer", "bank secrecy", "anti-money laundering", "aml", "financial crimes enforcement network", "finCEN", "suspicious activity report", "sar", "currency transaction report", "ctr", "unexplained wealth", "concealment of proceeds", "illegal proceeds", "dirty money", "clean money"]
+    }
+
+INSTRUCTOR_SYSTEM_PROMPT = "You are a DOJ legal research assistant specializing in fraud case identification and legal data extraction. Always apply legal standards and context when determining fraud."
+
+INSTRUCTOR_USER_PROMPT_TEMPLATE = """
+Use the provided press release to extract the required information.
+
+Press Release:
+{text}
+
+FRAUD DETECTION GUIDELINES:
+Use these keywords to identify fraud cases:
+{fraud_keywords}
+
+A case should be marked as fraud if it contains any of these keywords in a legally relevant context, or involves deceptive practices, schemes, or false representations as defined by law. Do not mark as fraud for generic mentions or unrelated uses of the word.
+"""

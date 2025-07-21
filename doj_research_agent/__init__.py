@@ -6,6 +6,7 @@ __email__ = "your.email@example.com"
 
 from .analyzer import CaseAnalyzer
 from .categorizer import ChargeCategorizer
+from .orchestrator import ResearchOrchestrator
 from .models import (
     AnalysisResult,
     CaseInfo,
@@ -29,6 +30,7 @@ __all__ = [
     "CaseAnalyzer",
     "ChargeCategorizer",
     "DOJScraper",
+    "ResearchOrchestrator",
     
     # Models
     "AnalysisResult",
