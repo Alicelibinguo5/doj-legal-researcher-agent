@@ -9,6 +9,7 @@ from .models import CaseInfo, CaseType, Disposition, CaseFraudInfo
 from .categorizer import ChargeCategorizer
 from .utils import setup_logger
 import os
+from doj_research_agent.constants import FRAUD_KEYWORDS
 
 try:
     import openai
@@ -30,100 +31,13 @@ class CaseAnalyzer:
         Determine if a case is fraud based on charge categories or content.
         Returns a CaseFraudInfo object.
         """
-        # Comprehensive fraud detection keywords and phrases
-        fraud_keywords = {
-            # General fraud terms
-            'fraud', 'fraudulent', 'fraudulently', 'defraud', 'defrauded', 'defrauding',
-            'scheme', 'scam', 'scamming', 'scammer', 'con', 'conning', 'swindle', 'swindling',
-            'deceive', 'deception', 'deceptive', 'mislead', 'misleading', 'false', 'falsely',
-            'fake', 'counterfeit', 'forgery', 'forged', 'phony', 'bogus', 'sham',
-            'hoax', 'impostor', 'imposter', 'impersonation', 'misrepresentation', 'misrepresented',
-            'fabrication', 'fabricated', 'dishonest', 'dishonesty', 'cheat', 'cheating', 'cheated',
-            'trick', 'tricked', 'tricking', 'deceit', 'deceitful', 'subterfuge', 'artifice',
-            'collusion', 'collude', 'colluded', 'colluding', 'conspiracy', 'conspire', 'conspired',
-            'ruse', 'pretense', 'pretext', 'sham', 'double-dealing', 'duplicity', 'two-faced',
-
-            # Financial fraud specific
-            'embezzle', 'embezzlement', 'embezzled', 'embezzling',
-            'money laundering', 'laundering', 'laundered', 'launder',
-            'ponzi', 'ponzi scheme', 'pyramid scheme', 'investment fraud', 'securities fraud',
-            'wire fraud', 'mail fraud', 'bank fraud', 'credit card fraud',
-            'identity theft', 'identity fraud', 'social security fraud',
-            'mortgage fraud', 'loan fraud', 'insurance fraud', 'auto insurance fraud', 'life insurance fraud',
-            'tax fraud', 'tax evasion', 'evasion', 'evaded', 'tax shelter', 'offshore account',
-            'check kiting', 'forged check', 'forged instrument', 'account takeover',
-            'advance fee fraud', 'affinity fraud', 'foreclosure rescue scam',
-
-            # Healthcare fraud
-            'medicare fraud', 'medicaid fraud', 'healthcare fraud', 'medical fraud',
-            'billing fraud', 'upcoding', 'unbundling', 'kickback', 'kickbacks',
-            'false billing', 'phantom billing', 'duplicate billing',
-            'prescription fraud', 'drug diversion', 'doctor shopping', 'unnecessary procedures',
-            'insurance billing fraud', 'medical identity theft',
-
-            # Disaster and relief fraud
-            'disaster fraud', 'fema fraud', 'relief fraud', 'emergency fraud',
-            'covid fraud', 'pandemic fraud', 'ppp fraud', 'ppp loan fraud',
-            'sba fraud', 'small business fraud', 'stimulus fraud', 'unemployment fraud',
-
-            # Consumer fraud
-            'telemarketing fraud', 'telemarketing scheme', 'phone scam',
-            'online fraud', 'internet fraud', 'cyber fraud', 'digital fraud',
-            'phishing', 'phishing scheme', 'ransomware', 'malware',
-            'data breach', 'breach', 'hacking', 'hacked', 'spoofing', 'smishing', 'vishing',
-            'identity scam', 'romance scam', 'lottery scam', 'sweepstakes scam', 'grandparent scam',
-            'fake invoice', 'fake charity', 'counterfeit goods', 'counterfeit product',
-            'ticket scam', 'travel scam', 'subscription scam', 'subscription trap',
-            'fake tech support', 'tech support scam', 'refund scam', 'overpayment scam',
-            'bait and switch', 'false advertising', 'pyramid scheme', 'multi-level marketing fraud',
-
-            # Government and public fraud
-            'public corruption', 'corruption', 'corrupt', 'bribery', 'bribe',
-            'kickback', 'kickbacks', 'official misconduct', 'abuse of office',
-            'false claims', 'false claim', 'qui tam', 'whistleblower',
-            'election fraud', 'voter fraud', 'ballot fraud', 'ballot stuffing',
-            'contract fraud', 'procurement fraud', 'grant fraud',
-
-            # Business and corporate fraud
-            'insider trading', 'insider information', 'market manipulation',
-            'price fixing', 'bid rigging', 'bid rig', 'antitrust',
-            'accounting fraud', 'financial statement fraud', 'cooking the books',
-            'corporate fraud', 'business fraud', 'commercial fraud',
-            'shell company', 'front company', 'dummy corporation',
-            'invoice fraud', 'supply chain fraud', 'procurement scam',
-
-            # Immigration and document fraud
-            'visa fraud', 'citizenship fraud', 'immigration fraud',
-            'document fraud', 'document forgery', 'fake documents',
-            'false statements', 'false declaration', 'perjury',
-            'passport fraud', 'green card fraud', 'naturalization fraud',
-            'marriage fraud', 'sham marriage',
-
-            # Intellectual property fraud
-            'counterfeit', 'counterfeiting', 'counterfeited',
-            'piracy', 'pirated', 'bootleg', 'bootlegged',
-            'trademark infringement', 'copyright infringement',
-            'intellectual property theft', 'trade secret theft',
-            'patent fraud', 'patent infringement',
-
-            # Other fraud patterns
-            'money mule', 'money laundering', 'structuring',
-            'under the table', 'off the books', 'black market',
-            'organized crime', 'racketeering', 'racketeer',
-            'extortion', 'extort', 'blackmail', 'blackmailing',
-            'smuggling', 'contraband', 'illegal import', 'illegal export',
-            'cybercrime', 'cyber attack', 'cyber scam', 'deepfake', 'synthetic identity',
-            'SIM swap', 'SIM swapping', 'account compromise', 'credential stuffing',
-            'fake review', 'review fraud', 'app scam', 'crypto scam', 'cryptocurrency fraud',
-            'NFT scam', 'NFT fraud', 'ICO scam', 'ICO fraud', 'pump and dump',
-            'forex scam', 'forex fraud', 'binary options scam', 'binary options fraud',
-            'investment scam', 'investment scheme', 'advance fee scam',
-            'charity scam', 'charity fraud', 'donation scam',
-            'fake employment', 'employment scam', 'job scam',
-            'fake rental', 'rental scam', 'real estate scam',
-            'inheritance scam', 'will fraud', 'estate fraud',
-            'notario fraud', 'notary fraud',
-        }
+        # Use FRAUD_KEYWORDS from constants.py for all fraud keyword checks
+        fraud_keywords = set()
+        for v in FRAUD_KEYWORDS.values():
+            if isinstance(v, list):
+                fraud_keywords.update(v)
+            elif isinstance(v, set):
+                fraud_keywords.update(list(v))
         
         # Check charge categories for fraud-related categories
         fraud_categories = {
@@ -452,18 +366,8 @@ class CaseAnalyzer:
         else:
             text = text_or_soup
         
-        # Comprehensive fraud keywords for GPT-4o to use
-        fraud_keywords = {
-            "general_fraud": ["fraud", "fraudulent", "defraud", "scheme", "scam", "deceive", "deception", "false", "fake", "counterfeit", "forgery", "phony", "bogus", "sham"],
-            "financial_fraud": ["embezzlement", "money laundering", "ponzi scheme", "investment fraud", "securities fraud", "wire fraud", "mail fraud", "bank fraud", "credit card fraud", "identity theft", "mortgage fraud", "loan fraud", "insurance fraud", "tax evasion", "structuring", "shell company", "money mule"],
-            "healthcare_fraud": ["medicare fraud", "medicaid fraud", "healthcare fraud", "medical fraud", "billing fraud", "upcoding", "unbundling", "kickback", "false billing", "phantom billing", "duplicate billing", "medical coding fraud", "pharmaceutical fraud", "prescription fraud"],
-            "disaster_fraud": ["disaster fraud", "fema fraud", "relief fraud", "emergency fraud", "covid fraud", "pandemic fraud", "ppp fraud", "ppp loan fraud", "sba fraud", "small business fraud", "stimulus fraud"],
-            "consumer_fraud": ["telemarketing fraud", "telemarketing scheme", "phone scam", "online fraud", "internet fraud", "cyber fraud", "digital fraud", "phishing", "phishing scheme", "bait and switch", "false advertising", "pyramid scheme"],
-            "government_fraud": ["public corruption", "corruption", "bribery", "kickback", "official misconduct", "abuse of office", "false claims", "election fraud", "voter fraud", "ballot fraud"],
-            "business_fraud": ["insider trading", "market manipulation", "price fixing", "bid rigging", "antitrust", "accounting fraud", "financial statement fraud", "corporate fraud", "business fraud"],
-            "immigration_fraud": ["visa fraud", "citizenship fraud", "immigration fraud", "document fraud", "document forgery", "fake documents", "false statements", "perjury", "marriage fraud", "sham marriage"],
-            "intellectual_property_fraud": ["counterfeiting", "piracy", "bootleg", "trademark infringement", "copyright infringement", "intellectual property theft", "fake goods", "counterfeit products"]
-        }
+        # Use FRAUD_KEYWORDS from constants.py for LLM prompt
+        fraud_keywords = FRAUD_KEYWORDS
         
         prompt = f"""
 You are a DOJ fraud legal researcher. Your primary task is to determine, with legal precision, whether the following DOJ press release describes a fraud case. Focus on legal standards, context, and the substance of the charges or conduct described. Ignore generic or irrelevant mentions of 'fraud' (e.g., in disclaimers, unrelated news, or boilerplate language). Only mark fraud_flag as true if the facts, charges, or context clearly indicate a fraud, scam, scheme, or deceptive practice as defined by law.

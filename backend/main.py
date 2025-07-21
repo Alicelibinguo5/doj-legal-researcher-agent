@@ -25,7 +25,7 @@ redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
 def set_job(job_id, data):
     redis_client.set(f"job:{job_id}", json.dumps(data))
 
-def get_job(job_id):
+def get_job(job_id) -> Optional[dict]:
     data = redis_client.get(f"job:{job_id}")
     return json.loads(data) if data else None
 
@@ -54,6 +54,10 @@ def get_job_status(job_id: str):
     if not job:
         return {"error": "Job not found", "status": "not_found"}
     return {"job_id": job_id, "status": job["status"], "result": job["result"], "error": job["error"]}
+
+@app.get("/")
+def root():
+    return {"message": "DOJ Research Agent API is running."}
 
 def run_agent_job(job_id: str, request: AnalysisRequest):
     set_job(job_id, {"status": "running", "result": None, "error": None})

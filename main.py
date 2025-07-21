@@ -49,7 +49,7 @@ def main():
         total_cases += 1
         try:
             if USE_GPT4O:
-                result = scraper.extract_structured_info_gpt4o_from_url(url, api_key=OPENAI_API_KEY)
+                result = scraper.extract_structured_info_from_url(url, api_key=OPENAI_API_KEY)
                 print(f"  - GPT-4o extracted: {result}")
                 cases.append(result)
                 successful_extractions += 1 if 'error' not in result else 0

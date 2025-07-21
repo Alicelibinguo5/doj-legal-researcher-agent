@@ -3,4 +3,4 @@ WORKDIR /app
 COPY . .
 RUN pip install --no-cache-dir streamlit poetry && poetry install --no-interaction --no-ansi
 EXPOSE 8501
-CMD ["streamlit", "run", "app/streamlit_agent.py", "--server.port=8501", "--server.address=0.0.0.0"] 
+CMD ["streamlit", "run", "frontend/streamlit_agent.py", "--server.port=8501", "--server.address=0.0.0.0"] 

@@ -69,6 +69,12 @@ class CaseInfo:
     case_type: CaseType = CaseType.UNKNOWN
     charge_categories: List[ChargeCategory] = field(default_factory=list)
     extraction_date: Optional[datetime] = None
+    # --- Added for linter/static analysis compliance ---
+    fraud_info: Optional["CaseFraudInfo"] = None
+    money_laundering_flag: Optional[bool] = None
+    money_laundering_evidence: Optional[str] = None
+    gpt4o: Optional[dict] = None
+    # ---------------------------------------------------
     
     def __post_init__(self):
         """Post-initialization processing."""
@@ -99,14 +105,6 @@ class CaseInfo:
             charge_categories=[ChargeCategory(cat) for cat in data.get("charge_categories", [])],
             extraction_date=datetime.fromisoformat(data["extraction_date"]) if data.get("extraction_date") else None
         )
-
-
-@dataclass
-class CaseFraudInfo:
-    """Indicates if a case is categorized as fraud, with evidence."""
-    is_fraud: bool
-    charge_categories: List[ChargeCategory] = field(default_factory=list)
-    evidence: Optional[str] = None  # e.g., text snippet or rationale
 
 
 @dataclass

@@ -77,9 +77,12 @@ class DOJScraper:
         press_releases = soup.find_all('a', href=True)
         
         urls = []
+        from bs4 import Tag
         for link in press_releases:
+            if not isinstance(link, Tag):
+                continue
             href = link.get('href')
-            if href and self._is_press_release_url(href):
+            if isinstance(href, str) and self._is_press_release_url(href):
                 full_url = urljoin(self.config.base_url, href)
                 urls.append(full_url)
         
@@ -130,11 +133,12 @@ class DOJScraper:
             return analyzer.extract_indictment_number(content)
         return ""
     
-    def extract_structured_info_gpt4o_from_url(self, url: str, api_key: str = None) -> dict:
+    def extract_structured_info_from_url(self, url: str, api_key: str = None) -> dict:
         """
         Fetch a press release, extract the main text, and use GPT-4o to extract structured info.
         Returns a dict with both classic and GPT-4o fields.
         """
+        from .llm import extract_structured_info
         soup = self.fetch_press_release_content(url)
         if soup:
             from .analyzer import CaseAnalyzer
@@ -143,7 +147,9 @@ class DOJScraper:
             case_info = analyzer.analyze_press_release(url, soup)
             # Use main article content for LLM
             content = analyzer.extract_main_article_content(soup)
-            gpt_result = analyzer.extract_structured_info_gpt4o(content, api_key=api_key)
+            if not isinstance(content, str):
+                content = str(content) if content is not None else ""
+            gpt_result = extract_structured_info(content, api_key=api_key or "")
             # Merge classic and GPT-4o results
             result = case_info.to_dict() if case_info else {}
             result['gpt4o'] = gpt_result
