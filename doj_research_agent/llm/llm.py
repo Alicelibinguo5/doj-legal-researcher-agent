@@ -5,14 +5,14 @@ import json
 import logging
 from typing import Union, Optional, Dict, Any, Type, TypeVar
 from bs4 import BeautifulSoup
-from doj_research_agent.constants import (
+from ..core.constants import (
     LLM_PROMPT, FRAUD_KEYWORDS, INSTRUCTOR_SYSTEM_PROMPT, INSTRUCTOR_USER_PROMPT_TEMPLATE
 )
 
 # Import instructor and models
 try:
     import instructor
-    from doj_research_agent.llm_models import CaseAnalysisResponse, SimpleCaseResponse, MoneyLaunderingResponse
+    from .llm_models import CaseAnalysisResponse, SimpleCaseResponse, MoneyLaunderingResponse
     INSTRUCTOR_AVAILABLE = True
 except ImportError:
     instructor = None

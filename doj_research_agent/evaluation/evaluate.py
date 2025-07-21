@@ -31,11 +31,11 @@ try:
 except ImportError:
     SKLEARN_AVAILABLE = False
 
-from .llm import LLMManager, extract_structured_info
-from .llm_models import CaseAnalysisResponse
+from ..llm.llm import LLMManager, extract_structured_info
+from ..llm.llm_models import CaseAnalysisResponse
 from .evaluation_types import EvaluationResult, TestCase
 from .langfuse_integration import trace_evaluation, get_langfuse_tracer
-from .constants import FRAUD_KEYWORDS
+from ..core.constants import FRAUD_KEYWORDS
 
 logger = logging.getLogger(__name__)
 
@@ -240,8 +240,8 @@ class FraudDetectionEvaluator:
         Returns:
             List of TestCase objects from real press releases
         """
-        from .scraper import DOJScraper
-        from .analyzer import CaseAnalyzer
+        from ..scraping.scraper import DOJScraper
+        from ..analysis.analyzer import CaseAnalyzer
         
         test_cases = []
         urls = scraper.get_press_release_urls()
@@ -611,7 +611,8 @@ def quick_eval_real_data(model_provider: str = "openai",
                         max_cases: int = 10,
                         enable_langfuse_tracing: bool = True) -> EvaluationResult:
     """Quick evaluation function using real DOJ press release data."""
-    from .scraper import DOJScraper, ScrapingConfig
+    from ..scraping.scraper import DOJScraper
+    from ..core.models import ScrapingConfig
     
     # Configure scraper
     config = ScrapingConfig(

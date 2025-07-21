@@ -1,8 +1,8 @@
 """Charge categorization functionality."""
 
 from typing import List, Dict, Set
-from .models import ChargeCategory
-from .utils import setup_logger
+from ..core.models import ChargeCategory
+from ..core.utils import setup_logger
 import openai
 
 logger = setup_logger(__name__)

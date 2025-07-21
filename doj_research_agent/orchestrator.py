@@ -7,11 +7,12 @@ import operator
 
 from langgraph.graph import StateGraph, END
 
-from .analyzer import CaseAnalyzer
-from .models import AnalysisResult, CaseInfo, ScrapingConfig
-from .scraper import DOJScraper
-from .utils import save_analysis_result, setup_logger
-from .evaluate import FraudDetectionEvaluator, EvaluationResult, TestCase
+from .analysis.analyzer import CaseAnalyzer
+from .core.models import AnalysisResult, CaseInfo, ScrapingConfig
+from .scraping.scraper import DOJScraper
+from .core.utils import save_analysis_result, setup_logger
+from .evaluation.evaluate import FraudDetectionEvaluator
+from .evaluation.evaluation_types import EvaluationResult, TestCase
 
 logger = setup_logger(__name__)
 

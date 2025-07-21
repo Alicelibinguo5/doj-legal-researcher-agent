@@ -11,8 +11,8 @@ import warnings
 from bs4 import XMLParsedAsHTMLWarning
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
-from .models import ScrapingConfig
-from .utils import setup_logger
+from ..core.models import ScrapingConfig
+from ..core.utils import setup_logger
 
 logger = setup_logger(__name__)
 
@@ -127,7 +127,7 @@ class DOJScraper:
         """Fetch a press release and extract the indictment number/details if present."""
         soup = self.fetch_press_release_content(url)
         if soup:
-            from .analyzer import CaseAnalyzer
+            from ..analysis.analyzer import CaseAnalyzer
             analyzer = CaseAnalyzer()
             content = analyzer._extract_content(soup)
             return analyzer.extract_indictment_number(content)
@@ -138,10 +138,10 @@ class DOJScraper:
         Fetch a press release, extract the main text, and use GPT-4o to extract structured info.
         Returns a dict with both classic and GPT-4o fields.
         """
-        from .llm import extract_structured_info
+        from ..llm.llm import extract_structured_info
         soup = self.fetch_press_release_content(url)
         if soup:
-            from .analyzer import CaseAnalyzer
+            from ..analysis.analyzer import CaseAnalyzer
             analyzer = CaseAnalyzer()
             # Use classic extraction for structure
             case_info = analyzer.analyze_press_release(url, soup)
@@ -161,7 +161,7 @@ class DOJScraper:
         Fetch a press release, analyze it, and return fraud info and charge count.
         Returns a dict: {is_fraud, evidence, charge_count, charge_list}
         """
-        from .analyzer import CaseAnalyzer
+        from ..analysis.analyzer import CaseAnalyzer
         soup = self.fetch_press_release_content(url)
         if soup:
             analyzer = CaseAnalyzer()

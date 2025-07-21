@@ -5,11 +5,11 @@ import json
 from typing import List, Optional
 from bs4 import BeautifulSoup
 from datetime import datetime
-from .models import CaseInfo, CaseType, Disposition, CaseFraudInfo
+from ..core.models import CaseInfo, CaseType, Disposition, CaseFraudInfo
 from .categorizer import ChargeCategorizer
-from .utils import setup_logger
+from ..core.utils import setup_logger
 import os
-from doj_research_agent.constants import FRAUD_KEYWORDS
+from ..core.constants import FRAUD_KEYWORDS
 
 try:
     import openai
