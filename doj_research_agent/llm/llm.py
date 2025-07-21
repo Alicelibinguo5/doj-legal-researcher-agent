@@ -240,7 +240,7 @@ def extract_structured_info(text_or_soup: Union[str, BeautifulSoup],
         try:
             system_prompt = INSTRUCTOR_SYSTEM_PROMPT
             user_prompt = INSTRUCTOR_USER_PROMPT_TEMPLATE.format(
-                fraud_keywords=json.dumps(FRAUD_KEYWORDS, indent=2),
+                FRAUD_KEYWORDS=json.dumps(FRAUD_KEYWORDS, indent=2),
                 text=text
             )
             
@@ -252,7 +252,7 @@ def extract_structured_info(text_or_soup: Union[str, BeautifulSoup],
     
     # Fallback to text-based approach
     system_prompt = "You are a DOJ legal research assistant specializing in fraud case identification and legal data extraction. Always apply legal standards and context when determining fraud."
-    user_prompt = LLM_PROMPT.format(text=text, fraud_keywords=json.dumps(FRAUD_KEYWORDS, indent=2))
+    user_prompt = LLM_PROMPT.format(text=text, FRAUD_KEYWORDS=json.dumps(FRAUD_KEYWORDS, indent=2))
 
     try:
         content = llm_manager.generate_response(system_prompt, user_prompt)
@@ -352,7 +352,7 @@ def _legacy_extract_structured_info(text_or_soup: Union[str, BeautifulSoup], api
     else:
         text = text_or_soup
 
-    prompt = LLM_PROMPT.format(text=text, fraud_keywords=json.dumps(FRAUD_KEYWORDS, indent=2))
+    prompt = LLM_PROMPT.format(text=text, FRAUD_KEYWORDS=json.dumps(FRAUD_KEYWORDS, indent=2))
 
     # Handle both old and new OpenAI API versions
     try:
