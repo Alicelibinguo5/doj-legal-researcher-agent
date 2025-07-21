@@ -39,8 +39,8 @@ def get_job(job_id) -> Optional[dict]:
 
 class AnalysisRequest(BaseModel):
     query: Optional[str] = None  # Not used in this simple version, but could be for keyword search
-    max_pages: int = 2
-    max_cases: int = 5
+    max_pages: int = 100  # Raised from 10 to 100
+    max_cases: int = 1000  # Raised from 10 to 1000
     fraud_type: Optional[str] = None  # e.g., 'financial_fraud', 'cybercrime', etc.
 
 class FeedbackRequest(BaseModel):
@@ -136,6 +136,45 @@ def export_training_data():
     except Exception as e:
         return {"success": False, "message": f"Error exporting training data: {str(e)}"}
 
+@app.get("/feedback/improvements")
+def get_model_improvements():
+    """Get feedback-based model improvement insights."""
+    try:
+        from doj_research_agent.core.feedback_improver import FeedbackBasedImprover
+        
+        improver = FeedbackBasedImprover(feedback_manager)
+        analysis = improver.analyze_feedback_patterns()
+        improved_config = improver.get_improved_config()
+        
+        return {
+            "success": True,
+            "feedback_analysis": analysis,
+            "improved_config": {
+                "fraud_detection_threshold": improved_config.fraud_detection_threshold,
+                "money_laundering_threshold": improved_config.money_laundering_threshold,
+                "confidence_boost_factor": improved_config.confidence_boost_factor,
+                "prompt_adjustment_factor": improved_config.prompt_adjustment_factor
+            }
+        }
+    except Exception as e:
+        return {"success": False, "message": f"Error getting model improvements: {str(e)}"}
+
+@app.post("/feedback/improvements/export")
+def export_improvement_report():
+    """Export a comprehensive model improvement report."""
+    try:
+        from doj_research_agent.core.feedback_improver import FeedbackBasedImprover
+        
+        improver = FeedbackBasedImprover(feedback_manager)
+        success = improver.export_improvement_report()
+        
+        return {
+            "success": success,
+            "message": "Improvement report exported successfully" if success else "Failed to export improvement report"
+        }
+    except Exception as e:
+        return {"success": False, "message": f"Error exporting improvement report: {str(e)}"}
+
 def run_agent_job(job_id: str, request: AnalysisRequest):
     set_job(job_id, {"status": "running", "result": None, "error": None})
     try:
@@ -163,9 +202,11 @@ def clean_fraud_info(fraud_info):
 
 # Minimal agent runner using your backend logic
 def run_agent(query: Optional[str], max_pages: int, max_cases: int, fraud_type: Optional[str]) -> List[Any]:
+    print(f"🔍 Starting analysis with max_pages={max_pages}, max_cases={max_cases}, fraud_type={fraud_type}")
     config = ScrapingConfig(max_pages=max_pages, max_cases=max_cases, delay_between_requests=1.0)
     scraper = DOJScraper(config)
     analyzer = CaseAnalyzer()
+    
     # If fraud_type is specified, filter by category
     if fraud_type:
         try:
@@ -173,8 +214,12 @@ def run_agent(query: Optional[str], max_pages: int, max_cases: int, fraud_type: 
         except ValueError:
             return [{"error": f"Unknown fraud_type: {fraud_type}"}]
         urls = scraper.get_press_release_urls()
+        print(f"📄 Found {len(urls)} URLs to process for fraud_type={fraud_type}")
         cases = []
         for url in urls:
+            if len(cases) >= max_cases:
+                print(f"✅ Reached max_cases limit ({max_cases}), stopping analysis")
+                break
             soup = scraper.fetch_press_release_content(url)
             if soup:
                 case_info = analyzer.analyze_press_release(url, soup)
@@ -200,14 +245,18 @@ def run_agent(query: Optional[str], max_pages: int, max_cases: int, fraud_type: 
                         if hasattr(case_info, 'gpt4o') and case_info.gpt4o:
                             case_dict['gpt4o'] = case_info.gpt4o
                         cases.append(case_dict)
-                    if len(cases) >= max_cases:
-                        break
+                        print(f"✅ Added case {len(cases)}/{max_cases}: {case_info.title[:50]}...")
+        print(f"🎯 Analysis complete: {len(cases)} cases found matching fraud_type={fraud_type}")
         return cases
     else:
         # No fraud_type: just analyze up to max_cases
         urls = scraper.get_press_release_urls()
+        print(f"📄 Found {len(urls)} URLs to process")
         cases = []
-        for url in urls[:max_cases]:
+        for url in urls:  # Process all URLs, not just first max_cases
+            if len(cases) >= max_cases:  # Stop when we reach max_cases
+                print(f"✅ Reached max_cases limit ({max_cases}), stopping analysis")
+                break
             soup = scraper.fetch_press_release_content(url)
             if soup:
                 case_info = analyzer.analyze_press_release(url, soup)
@@ -225,4 +274,6 @@ def run_agent(query: Optional[str], max_pages: int, max_cases: int, fraud_type: 
                     if hasattr(case_info, 'gpt4o') and case_info.gpt4o:
                         case_dict['gpt4o'] = case_info.gpt4o
                     cases.append(case_dict)
+                    print(f"✅ Added case {len(cases)}/{max_cases}: {case_info.title[:50]}...")
+        print(f"🎯 Analysis complete: {len(cases)} cases processed")
         return cases 

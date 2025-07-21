@@ -4,8 +4,8 @@ import { Play, Settings } from 'lucide-react';
 const AnalysisForm = ({ onStartAnalysis, isLoading }) => {
   const [formData, setFormData] = useState({
     fraudType: 'Any',
-    maxPages: 2,
-    maxCases: 10
+    maxPages: 100,  // Raised from 10 to 100
+    maxCases: 1000  // Raised from 10 to 1000
   });
 
   const fraudTypes = [
@@ -69,14 +69,14 @@ const AnalysisForm = ({ onStartAnalysis, isLoading }) => {
             <input
               type="range"
               min="1"
-              max="50"
+              max="100"
               value={formData.maxPages}
               onChange={(e) => handleChange('maxPages', parseInt(e.target.value))}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
               <span>1</span>
-              <span>50</span>
+              <span>100</span>
             </div>
           </div>
 
@@ -88,14 +88,14 @@ const AnalysisForm = ({ onStartAnalysis, isLoading }) => {
             <input
               type="range"
               min="1"
-              max="100"
+              max="1000"  // Raised from 100 to 1000
               value={formData.maxCases}
               onChange={(e) => handleChange('maxCases', parseInt(e.target.value))}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
               <span>1</span>
-              <span>100</span>
+              <span>1000</span>
             </div>
           </div>
         </div>

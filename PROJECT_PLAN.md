@@ -25,12 +25,22 @@ I want to use the file to write my project plan to use llm to help achieve each 
    - 7.3: Created React UI components for thumbs up/down feedback
    - 7.4: Added feedback statistics dashboard
    - 7.5: Implemented training data export functionality
+   - 7.6: **NEW**: Implemented FeedbackBasedImprover for model improvement
+   - 7.7: **NEW**: Added automatic threshold adjustment based on feedback accuracy
+   - 7.8: **NEW**: Created model improvement reports and API endpoints
 - 8. Documentation
    - 8.1 add Langfuse portal(https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores) in README.md - **COMPLETED**
      - Added Langfuse portal link to README.md
      - Updated architecture documentation with current system components
      - Added comprehensive features section highlighting all implemented functionality
      - Updated quickstart instructions for React dashboard and FastAPI backend
+   - 8.2 create simple document UI website like (docs.lakekeeper.io) w link to github - **COMPLETED**
+     - Created React-based documentation site using Vite
+     - Added sidebar navigation with Overview, Quickstart, API Reference, Feedback System, and Architecture sections
+     - Included prominent links to GitHub repository and Langfuse portal
+     - Implemented responsive design with clean, modern styling
+     - Added comprehensive documentation content for all major features
+     - Site runs on http://localhost:5174/ during development
 
 ## Architecture Diagram (Mermaid)
 
@@ -42,27 +52,34 @@ graph TD
     C --> D[Scrape & Analyze]
     D --> E[Evaluate Results]
     E --> F[Human Feedback Loop]
+    F --> G[Model Improvement]
     
-    D --> G[DOJ Scraper]
-    D --> H[LLM Analysis]
+    D --> H[DOJ Scraper]
+    D --> I[LLM Analysis]
     
-    E --> I[LLM Judge]
-    E --> J[RAGAS Metrics]
+    E --> J[LLM Judge]
+    E --> K[RAGAS Metrics]
     
-    F --> K[Feedback Manager]
-    F --> L[Training Data]
+    F --> L[Feedback Manager]
+    F --> M[Training Data]
     
-    A --> M[Feedback Widget]
-    M --> B
+    G --> N[Feedback Improver]
+    G --> O[Threshold Adjustment]
+    G --> P[Improvement Reports]
     
-    H --> N[OpenAI GPT-4o]
-    I --> N
+    A --> Q[Feedback Widget]
+    Q --> B
+    
+    I --> R[OpenAI GPT-4o]
+    J --> R
     
     style A fill:#e1f5fe
     style B fill:#f3e5f5
     style C fill:#fff3e0
     style F fill:#e8f5e8
-    style K fill:#e8f5e8
-    style M fill:#e8f5e8
+    style G fill:#fff8e1
+    style L fill:#e8f5e8
+    style N fill:#fff8e1
+    style Q fill:#e8f5e8
 ```
     

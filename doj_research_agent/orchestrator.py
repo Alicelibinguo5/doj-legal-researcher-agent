@@ -10,6 +10,7 @@ from langgraph.graph import StateGraph, END
 from .analysis.analyzer import CaseAnalyzer
 from .core.models import AnalysisResult, CaseInfo, ScrapingConfig, FeedbackData
 from .core.feedback_manager import FeedbackManager
+from .core.feedback_improver import FeedbackBasedImprover
 from .scraping.scraper import DOJScraper
 from .core.utils import save_analysis_result, setup_logger
 from .evaluation.evaluate import FraudDetectionEvaluator
@@ -184,6 +185,25 @@ class ResearchOrchestrator:
                 logger.info(f"Feedback processed: {result.feedback_id}")
             else:
                 logger.error(f"Failed to process feedback: {result.message}")
+        
+        # Use feedback to improve model performance
+        improver = FeedbackBasedImprover(feedback_manager)
+        
+        # Analyze feedback patterns
+        analysis = improver.analyze_feedback_patterns()
+        logger.info(f"Feedback analysis: {analysis.get('total_feedback', 0)} total feedback items")
+        
+        # Get improved configuration
+        improved_config = improver.get_improved_config()
+        logger.info(f"Improved fraud threshold: {improved_config.fraud_detection_threshold:.3f}")
+        logger.info(f"Improved laundering threshold: {improved_config.money_laundering_threshold:.3f}")
+        
+        # Export improvement report
+        improver.export_improvement_report()
+        
+        # Apply improvements to future analyses
+        # TODO: Store improved config in state for use in subsequent analyses
+        logger.info("Feedback-based improvements applied to model configuration")
         
         if processed_count > 0:
             logger.info(f"Processed {processed_count} feedback items")

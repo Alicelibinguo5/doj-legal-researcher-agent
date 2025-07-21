@@ -111,8 +111,8 @@ class CaseInfo:
 class ScrapingConfig:
     """Configuration for web scraping."""
     base_url: str = "https://www.justice.gov"
-    max_pages: int = 50
-    max_cases: int = 100
+    max_pages: int = 100  # Raised from 50 to 100
+    max_cases: int = 1000  # Raised from 100 to 1000
     delay_between_requests: float = 1.0
     timeout: int = 10
     user_agent: str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
