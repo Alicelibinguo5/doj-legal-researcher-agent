@@ -60,7 +60,7 @@ class LangfuseTracer:
         # Get credentials from environment or parameters
         self.public_key = public_key or os.getenv("LANGFUSE_PUBLIC_KEY")
         self.secret_key = secret_key or os.getenv("LANGFUSE_SECRET_KEY")
-        self.host = host or os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
+        self.host = host or os.getenv("LANGFUSE_HOST", "https://us.cloud.langfuse.com")
         
         if not self.public_key or not self.secret_key:
             logger.warning("Langfuse credentials not found. Set LANGFUSE_PUBLIC_KEY and LANGFUSE_SECRET_KEY environment variables.")
@@ -68,12 +68,13 @@ class LangfuseTracer:
             return
         
         try:
-            # Initialize Langfuse client
-            self.client = langfuse.Langfuse(
-                public_key=self.public_key,
-                secret_key=self.secret_key,
-                host=self.host
-            )
+            # Set environment variables for the client
+            os.environ["LANGFUSE_PUBLIC_KEY"] = self.public_key
+            os.environ["LANGFUSE_SECRET_KEY"] = self.secret_key
+            os.environ["LANGFUSE_HOST"] = self.host
+            
+            # Initialize Langfuse client using the correct API
+            self.client = langfuse.get_client(public_key=self.public_key)
             logger.info(f"Langfuse client initialized successfully with host: {self.host}")
         except Exception as e:
             logger.error(f"Failed to initialize Langfuse client: {e}")
@@ -102,7 +103,7 @@ class LangfuseTracer:
             return None
             
         try:
-            # Create trace
+            # Create trace metadata
             trace_metadata = {
                 "model_name": model_name,
                 "model_provider": model_provider,
@@ -112,21 +113,38 @@ class LangfuseTracer:
                 **(metadata or {})
             }
             
-            trace = self.client.trace(
-                name=f"fraud_detection_evaluation_{model_name}",
-                metadata=trace_metadata
-            )
-            trace_id = trace.id if hasattr(trace, 'id') else str(trace)
+            # Create trace ID
+            trace_id = self.client.create_trace_id()
             
-            # Push overall scores
-            self._push_overall_scores(trace_id, evaluation_result, model_name)
+            # Start a span to create the trace context
+            with self.client.start_as_current_span(name=f"fraud_detection_evaluation_{model_name}") as span:
+                # Update trace with metadata
+                self.client.update_current_trace(
+                    name=f"fraud_detection_evaluation_{model_name}",
+                    metadata=trace_metadata
+                )
+                
+                # Push overall scores
+                self._push_overall_scores(trace_id, evaluation_result, model_name)
+                
+                # Push individual case scores
+                self._push_case_scores(trace_id, evaluation_result, test_cases)
+                
+                # Push RAGAS scores if available
+                if evaluation_result.ragas_scores:
+                    self._push_ragas_scores(trace_id, evaluation_result.ragas_scores)
+                
+                # Update span with results
+                span.update(output={
+                    "accuracy": evaluation_result.accuracy,
+                    "precision": evaluation_result.precision,
+                    "recall": evaluation_result.recall,
+                    "f1_score": evaluation_result.f1_score,
+                    "total_cases": len(test_cases)
+                })
             
-            # Push individual case scores
-            self._push_case_scores(trace_id, evaluation_result, test_cases)
-            
-            # Push RAGAS scores if available
-            if evaluation_result.ragas_scores:
-                self._push_ragas_scores(trace_id, evaluation_result.ragas_scores)
+            # Flush to send data
+            self.client.flush()
             
             logger.info(f"Evaluation trace created with ID: {trace_id}")
             return trace_id
@@ -142,7 +160,7 @@ class LangfuseTracer:
             
         try:
             # Main accuracy score
-            self.client.score(
+            self.client.create_score(
                 trace_id=trace_id,
                 name="fraud_detection_accuracy",
                 value=evaluation_result.accuracy,
@@ -150,7 +168,7 @@ class LangfuseTracer:
             )
             
             # Precision score
-            self.client.score(
+            self.client.create_score(
                 trace_id=trace_id,
                 name="fraud_detection_precision",
                 value=evaluation_result.precision,
@@ -158,7 +176,7 @@ class LangfuseTracer:
             )
             
             # Recall score
-            self.client.score(
+            self.client.create_score(
                 trace_id=trace_id,
                 name="fraud_detection_recall",
                 value=evaluation_result.recall,
@@ -166,7 +184,7 @@ class LangfuseTracer:
             )
             
             # F1 score
-            self.client.score(
+            self.client.create_score(
                 trace_id=trace_id,
                 name="fraud_detection_f1",
                 value=evaluation_result.f1_score,
@@ -176,7 +194,7 @@ class LangfuseTracer:
             # Overall quality score (average of all metrics)
             overall_quality = (evaluation_result.accuracy + evaluation_result.precision + 
                              evaluation_result.recall + evaluation_result.f1_score) / 4
-            self.client.score(
+            self.client.create_score(
                 trace_id=trace_id,
                 name="fraud_detection_overall_quality",
                 value=overall_quality,
@@ -195,62 +213,40 @@ class LangfuseTracer:
             for i, (result, test_case) in enumerate(zip(evaluation_result.detailed_results, test_cases)):
                 # Case-level accuracy
                 case_correct = result.get('overall_correct', False)
-                self.client.score(
+                self.client.create_score(
                     trace_id=trace_id,
                     name=f"case_{i+1}_accuracy",
                     value=1.0 if case_correct else 0.0,
                     comment=f"Case {i+1}: {test_case.title}"
                 )
                 
-                # Fraud flag accuracy
-                fraud_correct = result.get('fraud_flag_correct', False)
-                self.client.score(
-                    trace_id=trace_id,
-                    name=f"case_{i+1}_fraud_flag_accuracy",
-                    value=1.0 if fraud_correct else 0.0,
-                    comment=f"Case {i+1} fraud flag accuracy"
-                )
-                
-                # Money laundering accuracy
-                ml_correct = result.get('money_laundering_correct', False)
-                self.client.score(
-                    trace_id=trace_id,
-                    name=f"case_{i+1}_money_laundering_accuracy",
-                    value=1.0 if ml_correct else 0.0,
-                    comment=f"Case {i+1} money laundering accuracy"
-                )
-                
                 # LLM judge scores if available
                 if 'llm_judgment' in result:
                     judgment = result['llm_judgment']
-                    for score_name in ['fraud_accuracy', 'type_accuracy', 'evidence_quality', 
-                                     'legal_reasoning', 'overall_quality']:
-                        if score_name in judgment:
-                            self.client.score(
-                                trace_id=trace_id,
-                                name=f"case_{i+1}_llm_judge_{score_name}",
-                                value=judgment[score_name] / 10.0,  # Normalize to 0-1
-                                comment=f"Case {i+1} LLM judge {score_name}"
-                            )
-                            
+                    self.client.create_score(
+                        trace_id=trace_id,
+                        name=f"case_{i+1}_llm_judge_quality",
+                        value=judgment.get('overall_quality', 0) / 10.0,  # Normalize to 0-1
+                        comment=f"LLM judge quality for case {i+1}: {test_case.title}"
+                    )
+                    
         except Exception as e:
             logger.error(f"Failed to push case scores: {e}")
     
     def _push_ragas_scores(self, trace_id: str, ragas_scores: Dict):
-        """Push RAGAS evaluation scores to Langfuse."""
+        """Push RAGAS scores to Langfuse."""
         if not self.enabled:
             return
             
         try:
             for metric_name, score in ragas_scores.items():
                 if isinstance(score, (int, float)):
-                    self.client.score(
+                    self.client.create_score(
                         trace_id=trace_id,
                         name=f"ragas_{metric_name}",
                         value=float(score),
                         comment=f"RAGAS {metric_name} score"
                     )
-                    
         except Exception as e:
             logger.error(f"Failed to push RAGAS scores: {e}")
     
@@ -275,32 +271,40 @@ class LangfuseTracer:
             return None
             
         try:
-            # Create trace for single case
-            trace_metadata = {
-                "model_name": model_name,
-                "test_case_title": test_case.title,
-                "expected_fraud": test_case.expected_fraud_flag,
-                "predicted_fraud": prediction.get('fraud_flag', False),
-                "case_type": "single_evaluation",
-                **(metadata or {})
-            }
+            trace_id = self.client.create_trace_id()
             
-            trace = self.client.trace(
-                name=f"single_case_evaluation_{model_name}",
-                metadata=trace_metadata
-            )
-            trace_id = trace.id if hasattr(trace, 'id') else str(trace)
+            with self.client.start_as_current_span(name=f"single_case_evaluation_{model_name}") as span:
+                # Update trace
+                self.client.update_current_trace(
+                    name=f"single_case_evaluation_{model_name}",
+                    metadata={
+                        "model_name": model_name,
+                        "test_case_title": test_case.title,
+                        "expected_fraud": test_case.expected_fraud_flag,
+                        "predicted_fraud": prediction.get('fraud_flag', False),
+                        **(metadata or {})
+                    }
+                )
+                
+                # Create score for this case
+                is_correct = prediction.get('fraud_flag', False) == test_case.expected_fraud_flag
+                self.client.create_score(
+                    trace_id=trace_id,
+                    name="case_accuracy",
+                    value=1.0 if is_correct else 0.0,
+                    comment=f"Case accuracy: {test_case.title}"
+                )
+                
+                # Update span
+                span.update(output={
+                    "correct": is_correct,
+                    "expected": test_case.expected_fraud_flag,
+                    "predicted": prediction.get('fraud_flag', False)
+                })
             
-            # Push case-specific scores
-            fraud_correct = prediction.get('fraud_flag', False) == test_case.expected_fraud_flag
-            self.client.score(
-                trace_id=trace_id,
-                name="fraud_detection_accuracy",
-                value=1.0 if fraud_correct else 0.0,
-                comment=f"Fraud detection accuracy for case: {test_case.title}"
-            )
+            # Flush to send data
+            self.client.flush()
             
-            logger.info(f"Single case trace created with ID: {trace_id}")
             return trace_id
             
         except Exception as e:
@@ -311,14 +315,14 @@ class LangfuseTracer:
         """Close the Langfuse client."""
         if self.enabled and hasattr(self, 'client'):
             try:
-                self.client.flush()
-                logger.info("Langfuse client flushed and closed")
+                self.client.shutdown()
+                logger.info("Langfuse client shut down successfully")
             except Exception as e:
-                logger.error(f"Error closing Langfuse client: {e}")
+                logger.error(f"Error shutting down Langfuse client: {e}")
 
 
 # Global tracer instance
-_global_tracer: Optional[LangfuseTracer] = None
+_global_tracer = None
 
 
 def get_langfuse_tracer() -> Optional[LangfuseTracer]:
@@ -341,7 +345,7 @@ def trace_evaluation(evaluation_result: EvaluationResult,
                     test_cases: List[TestCase],
                     metadata: Optional[Dict] = None) -> Optional[str]:
     """
-    Convenience function to trace an evaluation run.
+    Convenience function to trace an evaluation result.
     
     Args:
         evaluation_result: Results from evaluation
@@ -354,7 +358,7 @@ def trace_evaluation(evaluation_result: EvaluationResult,
         Trace ID if successful, None otherwise
     """
     tracer = get_langfuse_tracer()
-    if tracer:
+    if tracer and tracer.enabled:
         return tracer.trace_evaluation_run(
             evaluation_result=evaluation_result,
             model_name=model_name,
