@@ -68,9 +68,11 @@ function Overview() {
 }
 
 function Quickstart() {
+  console.log('Quickstart component rendering');
   return (
     <section>
       <h2>Quickstart</h2>
+      <p>This is the Quickstart section content.</p>
       <ol>
         <li>Clone the repository from <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a>.</li>
         <li>Follow the README for backend and frontend setup.</li>
