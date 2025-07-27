@@ -12,5 +12,5 @@ Currently, two official plugins are available:
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 
 **Project Links:**
-- [Main GitHub Repository](https://github.com/Alicelibinguo5/doj-legal-reseach-agent)
+- [Main GitHub Repository](https://github.com/Alicelibinguo5/doj-fraud-agent)
 - [Langfuse Portal](https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores)

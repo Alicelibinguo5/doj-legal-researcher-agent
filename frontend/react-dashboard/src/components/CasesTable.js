@@ -154,7 +154,7 @@ const CasesTable = ({ results }) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'doj_research_results.csv';
+    a.download = 'doj_fraud_results.csv';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

@@ -1,8 +1,8 @@
 <div align="center">
 
-# DOJ Legal Fraud Research Agent
+# DOJ Fraud Research Agent
 
-[![License](https://img.shields.io/github/license/Alicelibinguo5/doj-case-research-agent)](LICENSE)
+[![License](https://img.shields.io/github/license/Alicelibinguo5/doj-fraud-agent)](LICENSE)
 
 </div>
 
@@ -53,12 +53,15 @@ This tool is an effort to expand the research capabilities of the ACFE by examin
   - Performance monitoring and scoring dashboard
   - Training data insights and model improvement tracking
 
+## Documentation
+📖 **[Documentation](https://doj-fraud-agent.netlify.app/)** • 🐳 **Docker** • 📊 **Langfuse Portal**
+
 ## Quickstart
 
 1. **Clone & Enter the Repo**
    ```bash
-   git clone https://github.com/Alicelibinguo5/doj-legal-research-agent.git
-   cd doj-legal-research-agent
+   git clone https://github.com/Alicelibinguo5/doj-fraud-agent.git
+   cd doj-fraud-agent
    ```
 
 2. **Run with Docker Compose**
@@ -106,7 +109,9 @@ This tool is an effort to expand the research capabilities of the ACFE by examin
 - RAGAS metrics for accuracy assessment
 
 ## Example Dashboard 
-![Dashboard](./images/dashboard.png)
+![Dashboard](./images/dashboard-main.png)
+
+*See the [Documentation](https://doj-fraud-agent.netlify.app/) for detailed screenshots and usage examples.*
 
 ## Need Help?
 - Check the React dashboard for interactive tips

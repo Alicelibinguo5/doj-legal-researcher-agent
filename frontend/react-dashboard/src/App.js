@@ -8,7 +8,7 @@ import CasesTable from './components/CasesTable';
 import FeedbackStats from './components/FeedbackStats';
 import { analyzeCases, pollJobStatus } from './utils/api';
 
-const LOCAL_STORAGE_KEY = 'doj_research_last_results';
+const LOCAL_STORAGE_KEY = 'doj_fraud_last_results';
 
 function App() {
   const [results, setResults] = useState([]);

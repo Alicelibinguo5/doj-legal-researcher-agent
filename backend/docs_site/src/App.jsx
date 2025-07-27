@@ -9,7 +9,7 @@ const DOCS = [
   { id: 'architecture', label: 'Architecture' },
 ];
 
-const GITHUB_URL = 'https://github.com/Alicelibinguo5/doj-legal-reseach-agent'; // Updated with actual repo
+const GITHUB_URL = 'https://github.com/Alicelibinguo5/doj-fraud-agent'; // Updated with actual repo
 const LANGFUSE_URL = 'https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores';
 
 // GitHub stats (you can update these values)
@@ -25,7 +25,7 @@ function App() {
   return (
     <div className="docs-root">
       <aside className="sidebar">
-        <h1 className="logo">DOJ Research Agent</h1>
+        <h1 className="logo">DOJ Fraud Agent</h1>
         <nav>
           <ul>
             {DOCS.map(doc => (
@@ -80,7 +80,7 @@ function Overview() {
     <section>
       <h2>Overview</h2>
       <p>
-        <b>DOJ Research Agent</b> is an AI-powered system for analyzing DOJ press releases, detecting fraud, and enabling human-in-the-loop feedback for continuous model improvement.
+        <b>DOJ Fraud Agent</b> is an AI-powered system for analyzing DOJ press releases, detecting fraud, and enabling human-in-the-loop feedback for continuous model improvement.
       </p>
       <ul>
         <li>Automated scraping and analysis of DOJ press releases</li>
@@ -97,7 +97,7 @@ function Quickstart() {
   return (
     <section>
       <h2>Quickstart</h2>
-      <p>Get started with the DOJ Research Agent in a few simple steps:</p>
+      <p>Get started with the DOJ Fraud Agent in a few simple steps:</p>
       <ol>
         <li>Clone the repository from <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a>.</li>
         <li>Follow the README for backend and frontend setup.</li>

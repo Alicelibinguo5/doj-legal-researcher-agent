@@ -1,6 +1,6 @@
 [tool.poetry]
 package-mode = false
-name = "doj-research-agent"
+name = "doj-fraud-agent"
 version = "0.1.0"
 description = "Agent that analyzes DOJ press releases for legal research"
 authors = ["Libin Guo<libinguo89@gmail.com>"]

@@ -5,7 +5,7 @@ import time
 import json
 import os
 
-st.title("DOJ Legal Fraud Research Agent")
+st.title("DOJ Fraud Agent")
 
 # --- Analysis controls ---
 fraud_type = st.selectbox(
