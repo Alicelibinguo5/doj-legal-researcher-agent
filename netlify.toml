@@ -1,6 +1,6 @@
 [build]
   publish = "backend/docs_site/dist"
-  command = "cd backend/docs_site && npm run build"
+  command = "cd backend/docs_site && npm install && npm run build"
 
 [[redirects]]
   from = "/*"
