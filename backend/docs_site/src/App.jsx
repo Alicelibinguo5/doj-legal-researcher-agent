@@ -15,6 +15,8 @@ const LANGFUSE_URL = 'https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07pto
 function App() {
   const [section, setSection] = useState('overview');
 
+  console.log('Current section:', section);
+
   return (
     <div className="docs-root">
       <aside className="sidebar">
@@ -25,7 +27,10 @@ function App() {
               <li key={doc.id}>
                 <button
                   className={section === doc.id ? 'active' : ''}
-                  onClick={() => setSection(doc.id)}
+                  onClick={() => {
+                    console.log('Clicking section:', doc.id);
+                    setSection(doc.id);
+                  }}
                 >
                   {doc.label}
                 </button>
@@ -39,6 +44,7 @@ function App() {
         </div>
       </aside>
       <main className="content">
+        <div>Debug: Current section is "{section}"</div>
         {section === 'overview' && <Overview />}
         {section === 'quickstart' && <Quickstart />}
         {section === 'api' && <APIReference />}
