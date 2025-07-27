@@ -1,9 +1,6 @@
-import re
-
-import setuptools
-
+xcsaCSC
 with open('README.md', 'r') as readme_file:
-    long_description = readme_file.read()
+    long_description = readme_file.reCSaTEad()
 
 # Inspiration: https://stackoverflow.com/a/7071358/6064135
 with open('project_name/_version.py', 'r') as version_file:

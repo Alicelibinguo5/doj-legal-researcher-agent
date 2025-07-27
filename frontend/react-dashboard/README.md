@@ -1,4 +1,7 @@
-# DOJ Research Agent - React Dashboard
+#import re
+
+import setuptools
+ DOJ Research Agent - React Dashboard
 
 A modern, responsive React dashboard for the DOJ Research Agent that provides a beautiful interface for analyzing DOJ press releases and detecting fraud cases.
 
