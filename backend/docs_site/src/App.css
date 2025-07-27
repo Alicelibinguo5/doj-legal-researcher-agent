@@ -58,6 +58,51 @@
 .sidebar-links a:hover {
   color: #333;
 }
+
+.github-section {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+}
+
+.github-section h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #6c3fc5;
+  font-weight: 600;
+}
+
+.github-stats {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.stat .icon {
+  font-size: 0.7rem;
+}
+
+.github-link {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: #6c3fc5;
+  transition: color 0.15s;
+}
+
+.github-link:hover {
+  color: #333;
+}
 .content {
   flex: 1;
   padding: 2.5rem 2rem 2rem 2rem;

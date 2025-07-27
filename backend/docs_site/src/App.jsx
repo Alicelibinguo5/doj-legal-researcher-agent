@@ -12,6 +12,13 @@ const DOCS = [
 const GITHUB_URL = 'https://github.com/Alicelibinguo5/doj-legal-reseach-agent'; // Updated with actual repo
 const LANGFUSE_URL = 'https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores';
 
+// GitHub stats (you can update these values)
+const GITHUB_STATS = {
+  version: 'v1.0.0',
+  stars: '15',
+  forks: '8'
+};
+
 function App() {
   const [section, setSection] = useState('overview');
 
@@ -34,7 +41,26 @@ function App() {
           </ul>
         </nav>
         <div className="sidebar-links">
-          <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a>
+          <div className="github-section">
+            <h4>GitHub</h4>
+            <div className="github-stats">
+              <div className="stat">
+                <span className="icon">🏷️</span>
+                <span>{GITHUB_STATS.version}</span>
+              </div>
+              <div className="stat">
+                <span className="icon">⭐</span>
+                <span>{GITHUB_STATS.stars}</span>
+              </div>
+              <div className="stat">
+                <span className="icon">🍴</span>
+                <span>{GITHUB_STATS.forks}</span>
+              </div>
+            </div>
+            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="github-link">
+              View on GitHub
+            </a>
+          </div>
           <a href={LANGFUSE_URL} target="_blank" rel="noopener noreferrer">Langfuse Portal</a>
         </div>
       </aside>
