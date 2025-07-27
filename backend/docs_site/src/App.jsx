@@ -15,8 +15,6 @@ const LANGFUSE_URL = 'https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07pto
 function App() {
   const [section, setSection] = useState('overview');
 
-  console.log('Current section:', section);
-
   return (
     <div className="docs-root">
       <aside className="sidebar">
@@ -27,10 +25,7 @@ function App() {
               <li key={doc.id}>
                 <button
                   className={section === doc.id ? 'active' : ''}
-                  onClick={() => {
-                    console.log('Clicking section:', doc.id);
-                    setSection(doc.id);
-                  }}
+                  onClick={() => setSection(doc.id)}
                 >
                   {doc.label}
                 </button>
@@ -44,7 +39,6 @@ function App() {
         </div>
       </aside>
       <main className="content">
-        <div>Debug: Current section is "{section}"</div>
         {section === 'overview' && <Overview />}
         {section === 'quickstart' && <Quickstart />}
         {section === 'api' && <APIReference />}
@@ -74,11 +68,10 @@ function Overview() {
 }
 
 function Quickstart() {
-  console.log('Quickstart component rendering');
   return (
     <section>
       <h2>Quickstart</h2>
-      <p>This is the Quickstart section content.</p>
+      <p>Get started with the DOJ Research Agent in a few simple steps:</p>
       <ol>
         <li>Clone the repository from <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a>.</li>
         <li>Follow the README for backend and frontend setup.</li>
