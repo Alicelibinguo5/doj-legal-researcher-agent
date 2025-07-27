@@ -2,11 +2,16 @@
 
 # DOJ Fraud Research Agent
 
-[![License](https://img.shields.io/github/license/Alicelibinguo5/doj-fraud-agent)](LICENSE)
+[![Documentation](https://img.shields.io/badge/docs-latest-blue)](https://doj-fraud-agent.netlify.app/) [![Langfuse](https://img.shields.io/badge/langfuse-portal-green)](https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores) [![License](https://img.shields.io/github/license/Alicelibinguo5/doj-fraud-agent)](LICENSE)
 
 </div>
 
 A friendly, end-to-end tool for exploring and categorizing DOJ press releases, with a focus on fraud detection. Includes a React dashboard, FastAPI backend, and LangGraph orchestration for legal research and data analysis.
+
+---
+
+## Documentation
+📖 **[Documentation](https://doj-fraud-agent.netlify.app/)** • 🐳 **Docker** • 📊 **Langfuse Portal**
 
 ---
 
@@ -24,37 +29,6 @@ This tool is an effort to expand the research capabilities of the ACFE by examin
 - **LangGraph Orchestration**: Intelligent workflow management with human-in-the-loop feedback
 - **Langfuse Integration**: Comprehensive tracing and evaluation metrics
 - **Docker Compose**: One command to run everything
-
----
-## Architecture
-
-![Architecture](./images/arch.png)
-
-### System Components
-
-**Frontend Layer:**
-- **React Dashboard**: Modern UI with real-time analysis, filtering, and feedback collection
-- **Feedback Widget**: Thumbs up/down system for human-in-the-loop learning
-- **Statistics Dashboard**: Performance metrics and training data export
-
-**Backend Layer:**
-- **FastAPI Server**: RESTful API for analysis requests and feedback processing
-- **Redis Job Queue**: Asynchronous task management for long-running analyses
-- **DOJ Scraper**: Intelligent web scraping with video content filtering
-
-**AI/ML Layer:**
-- **LangGraph Orchestrator**: Workflow management with nodes for fetching, analyzing, evaluating, and processing feedback
-- **LLM Agent**: GPT-4o integration for fraud detection and case analysis
-- **Evaluation Layer**: LLM-as-a-Judge with RAGAS framework for accuracy assessment
-
-**Monitoring & Analytics:**
-- **Langfuse Portal**: [https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores](https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores)
-  - Real-time tracing of LLM calls and evaluation metrics
-  - Performance monitoring and scoring dashboard
-  - Training data insights and model improvement tracking
-
-## Documentation
-📖 **[Documentation](https://doj-fraud-agent.netlify.app/)** • 🐳 **Docker** • 📊 **Langfuse Portal**
 
 ## Quickstart
 
@@ -84,6 +58,34 @@ This tool is an effort to expand the research capabilities of the ACFE by examin
    npm install
    npm start
    ```
+
+---
+## Architecture
+
+![Architecture](./images/arch.png)
+
+### System Components
+
+**Frontend Layer:**
+- **React Dashboard**: Modern UI with real-time analysis, filtering, and feedback collection
+- **Feedback Widget**: Thumbs up/down system for human-in-the-loop learning
+- **Statistics Dashboard**: Performance metrics and training data export
+
+**Backend Layer:**
+- **FastAPI Server**: RESTful API for analysis requests and feedback processing
+- **Redis Job Queue**: Asynchronous task management for long-running analyses
+- **DOJ Scraper**: Intelligent web scraping with video content filtering
+
+**AI/ML Layer:**
+- **LangGraph Orchestrator**: Workflow management with nodes for fetching, analyzing, evaluating, and processing feedback
+- **LLM Agent**: GPT-4o integration for fraud detection and case analysis
+- **Evaluation Layer**: LLM-as-a-Judge with RAGAS framework for accuracy assessment
+
+**Monitoring & Analytics:**
+- **Langfuse Portal**: [https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores](https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores)
+  - Real-time tracing of LLM calls and evaluation metrics
+  - Performance monitoring and scoring dashboard
+  - Training data insights and model improvement tracking
 
 ---
 ## Features
