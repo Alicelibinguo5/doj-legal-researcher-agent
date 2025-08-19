@@ -81,34 +81,37 @@ This tool is an effort to expand the research capabilities of the ACFE by examin
 ---
 ## Architecture
 
-![Architecture](./images/arch.png)
+![Multi-Agent Architecture](./images/multi_agent_arch.png)
 
 ### System Components
 
-**Frontend Layer:**
-- **React Dashboard**: Modern UI with real-time analysis, filtering, and feedback collection
-- **Feedback Widget**: Thumbs up/down system for human-in-the-loop learning
-- **Statistics Dashboard**: Performance metrics and training data export
+**🖥️ Frontend Layer:**
+- **React Dashboard**: Multi-agent UI with real-time monitoring
+- **Agent Monitor**: Performance metrics, logs, and communication tracking
 
-**Backend Layer:**
-- **FastAPI Server**: RESTful API for analysis requests and feedback processing
-- **Redis Job Queue**: Asynchronous task management for long-running analyses
-- **DOJ Scraper**: Intelligent web scraping with video content filtering
+**⚡ Backend Layer:**
+- **FastAPI Server**: Multi-agent API and coordination endpoint
+- **Redis Queue**: Task management and asynchronous processing
 
-**Multi-Agent AI/ML Layer:**
-- **🔍 Research Agent**: Specialized fraud detection, pattern analysis, and case insights
-- **📊 Evaluation Agent**: Performance monitoring, quality assessment, and system optimization
-- **⚖️ Legal Intelligence Agent**: Legal precedent matching, compliance validation, and regulatory analysis
-- **🎯 Meta-Agent**: Strategic oversight, task allocation, and dynamic coordination
-- **LangGraph Orchestrator**: Multi-agent workflow management with inter-agent communication
-- **Coordination Engine**: Sequential, parallel, and adaptive execution strategies
-- **Shared Memory System**: Cross-agent knowledge persistence and communication logs
+**🤖 Multi-Agent System:**
+- **🔍 Research Agent**: Fraud detection and pattern analysis
+- **📈 Evaluation Agent**: Performance monitoring and quality assessment
+- **⚖️ Legal Agent**: Precedent analysis and compliance validation
+- **🎯 Meta-Agent**: Strategic control and coordination optimization
 
-**Monitoring & Analytics:**
-- **Langfuse Portal**: [https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores](https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores)
-  - Real-time tracing of LLM calls and evaluation metrics
-  - Performance monitoring and scoring dashboard
-  - Training data insights and model improvement tracking
+**🔄 Coordination Engine:**
+- **LangGraph Orchestrator**: Workflow management and agent coordination
+- **Shared Memory**: Cross-agent state persistence and knowledge sharing
+- **Message Queue**: Inter-agent communication and event handling
+
+**🌐 External Services:**
+- **DOJ Sources**: Legal data, cases, and regulatory information
+
+**📊 Monitoring & Analytics:**
+- **Langfuse Portal**: [Multi-agent tracing and performance analytics](https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores)
+  - Agent interaction visualization
+  - Coordination strategy performance
+  - System health monitoring
 
 ---
 ## Features
