@@ -1,6 +1,6 @@
 <div align="center">
 
-# DOJ Multi-Agent Research System
+# Antifraud Multi-Agent Research System
 
 [![Documentation](https://img.shields.io/badge/docs-latest-blue)](https://doj-fraud-agent.netlify.app/) [![Langfuse](https://img.shields.io/badge/langfuse-portal-green)](https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores) [![License](https://img.shields.io/github/license/Alicelibinguo5/doj-fraud-agent)](LICENSE)
 
