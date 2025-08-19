@@ -1,0 +1,7 @@
+# Minimal requirements for multi-agent demo
+# No external dependencies needed - uses only Python standard library
+
+# For development/testing (optional):
+# pytest>=7.0.0
+# black>=22.0.0
+# mypy>=0.950

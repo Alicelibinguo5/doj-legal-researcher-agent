@@ -1,12 +1,12 @@
 <div align="center">
 
-# DOJ Fraud Research Agent
+# DOJ Multi-Agent Research System
 
 [![Documentation](https://img.shields.io/badge/docs-latest-blue)](https://doj-fraud-agent.netlify.app/) [![Langfuse](https://img.shields.io/badge/langfuse-portal-green)](https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores) [![License](https://img.shields.io/github/license/Alicelibinguo5/doj-fraud-agent)](LICENSE)
 
 </div>
 
-A friendly, end-to-end tool for exploring and categorizing DOJ press releases, with a focus on fraud detection. Includes a React dashboard, FastAPI backend, and LangGraph orchestration for legal research and data analysis.
+An intelligent multi-agent system for analyzing DOJ fraud cases with specialized agents for research, evaluation, and legal intelligence. Features coordinated workflows, real-time performance monitoring, and adaptive system behavior with React dashboard, FastAPI backend, and LangGraph orchestration.
 
 ---
 
@@ -24,9 +24,21 @@ This tool is an effort to expand the research capabilities of the ACFE by examin
 
 ## How it Works
 
+### 🤖 **Multi-Agent Architecture**
+- **🔍 Research Agent**: Specialized fraud detection and pattern analysis
+- **📊 Evaluation Agent**: Performance monitoring and quality assessment
+- **⚖️ Legal Intelligence Agent**: Legal precedent analysis and compliance validation
+- **🎯 Meta-Agent**: Strategic oversight and dynamic coordination
+
+### 🔄 **Coordination Strategies**
+- **Sequential**: Controlled, step-by-step processing for complex cases
+- **Parallel**: Concurrent execution for maximum efficiency
+- **Adaptive**: Dynamic strategy switching based on real-time performance
+
+### 🏗️ **System Components**
 - **React Dashboard**: Modern, responsive web UI with real-time feedback
-- **FastAPI Backend**: Handles scraping, analysis, and LLM-powered fraud detection
-- **LangGraph Orchestration**: Intelligent workflow management with human-in-the-loop feedback
+- **FastAPI Backend**: Handles scraping, analysis, and multi-agent coordination
+- **LangGraph Orchestration**: Intelligent workflow management with agent communication
 - **Langfuse Integration**: Comprehensive tracing and evaluation metrics
 - **Docker Compose**: One command to run everything
 
@@ -38,7 +50,7 @@ This tool is an effort to expand the research capabilities of the ACFE by examin
    cd doj-fraud-agent
    ```
 
-2. **Run with Docker Compose**
+2. **Run Full System with Docker Compose**
    ```bash
    docker compose build
    docker compose up
@@ -47,7 +59,14 @@ This tool is an effort to expand the research capabilities of the ACFE by examin
    - FastAPI Backend: [http://localhost:8000](http://localhost:8000)
    - Langfuse Portal: [https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores](https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores)
 
-3. **(Optional) Local Development**
+3. **Quick Multi-Agent Demo** (Interview Ready)
+   ```bash
+   cd doj_research_clean
+   python multi_agent_demo.py
+   ```
+   ✨ *Perfect for demonstrating multi-agent concepts in 2 minutes!*
+
+4. **(Optional) Local Development**
    ```bash
    # Backend
    cd backend
@@ -76,10 +95,14 @@ This tool is an effort to expand the research capabilities of the ACFE by examin
 - **Redis Job Queue**: Asynchronous task management for long-running analyses
 - **DOJ Scraper**: Intelligent web scraping with video content filtering
 
-**AI/ML Layer:**
-- **LangGraph Orchestrator**: Workflow management with nodes for fetching, analyzing, evaluating, and processing feedback
-- **LLM Agent**: GPT-4o integration for fraud detection and case analysis
-- **Evaluation Layer**: LLM-as-a-Judge with RAGAS framework for accuracy assessment
+**Multi-Agent AI/ML Layer:**
+- **🔍 Research Agent**: Specialized fraud detection, pattern analysis, and case insights
+- **📊 Evaluation Agent**: Performance monitoring, quality assessment, and system optimization
+- **⚖️ Legal Intelligence Agent**: Legal precedent matching, compliance validation, and regulatory analysis
+- **🎯 Meta-Agent**: Strategic oversight, task allocation, and dynamic coordination
+- **LangGraph Orchestrator**: Multi-agent workflow management with inter-agent communication
+- **Coordination Engine**: Sequential, parallel, and adaptive execution strategies
+- **Shared Memory System**: Cross-agent knowledge persistence and communication logs
 
 **Monitoring & Analytics:**
 - **Langfuse Portal**: [https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores](https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores)
@@ -90,36 +113,92 @@ This tool is an effort to expand the research capabilities of the ACFE by examin
 ---
 ## Features
 
+### 🤖 **Multi-Agent Intelligence**
+- **Agent Specialization**: Each agent has single responsibility (research, evaluation, legal)
+- **Inter-Agent Communication**: Message-based coordination and knowledge sharing
+- **Adaptive Coordination**: Dynamic strategy switching (sequential → parallel → adaptive)
+- **Performance Optimization**: Real-time metrics and system self-improvement
+- **Fault Tolerance**: Graceful handling of agent failures without system crashes
+
 ### 🔍 **Intelligent Analysis**
-- Automated DOJ press release scraping with video content filtering
-- LLM-powered fraud detection using GPT-4o
-- Multi-category charge classification and analysis
+- **Research Agent**: Automated DOJ scraping, fraud detection, and pattern analysis
+- **Evaluation Agent**: Quality assessment, performance monitoring, and accuracy tracking
+- **Legal Intelligence Agent**: Precedent matching, compliance validation, and risk assessment
+- **Meta-Agent**: Strategic oversight, task allocation, and coordination optimization
 
 ### 📊 **Real-time Dashboard**
-- Interactive React UI with filtering and sorting
-- CSV export functionality
-- Execution time tracking and performance metrics
+- Interactive React UI with multi-agent status monitoring
+- Agent performance metrics and communication logs
+- CSV export functionality with agent attribution
+- Execution time tracking across coordination strategies
 
-### 🤖 **Human-in-the-Loop Learning**
-- Thumbs up/down feedback system for model improvement
-- Feedback statistics and training data export
-- Continuous model evaluation and refinement
+### 🤖 **Advanced Learning & Adaptation**
+- **Shared Memory System**: Cross-agent knowledge persistence and learning
+- **Dynamic Strategy Selection**: System adapts coordination based on performance
+- **Human-in-the-Loop**: Thumbs up/down feedback integration across all agents
+- **Continuous Improvement**: Agent behavior adapts based on feedback and performance
 
-### 📈 **Monitoring & Evaluation**
-- Langfuse integration for comprehensive tracing
-- LLM-as-a-Judge evaluation framework
-- RAGAS metrics for accuracy assessment
+### 📈 **Comprehensive Monitoring**
+- **Multi-Agent Tracing**: Langfuse integration for agent interaction visualization
+- **Performance Analytics**: Strategy comparison and optimization insights
+- **Quality Metrics**: Cross-agent validation and accuracy assessment
+- **System Health**: Real-time monitoring of agent status and coordination efficiency
+
+## Multi-Agent Demo Output
+```bash
+🎯 DOJ MULTI-AGENT RESEARCH SYSTEM
+==================================
+
+=============== SEQUENTIAL STRATEGY ===============
+🔍 Research Agent analyzing: fraud-scheme-1
+📨 research_agent → evaluation_agent: case_analyzed
+📨 research_agent → legal_agent: fraud_case
+✅ Research completed: 🚨 FRAUD (0.85)
+⚖️  Legal Agent analyzing: fraud-scheme-1
+📊 Evaluation Agent performing assessment...
+
+📊 STRATEGY COMPARISON
+Sequential | Time:  4.31s | Messages: 13 | Fraud: 60.0%
+Parallel   | Time:  2.71s | Messages: 15 | Fraud: 60.0%
+Adaptive   | Time:  3.31s | Messages: 12 | Fraud: 60.0%
+
+🎉 Key Concepts Demonstrated:
+   🤖 Agent Specialization & Single Responsibility
+   🔄 Multiple Coordination Strategies
+   📨 Inter-Agent Message Passing
+```
 
 ## Example Dashboard 
 ![Dashboard](./images/dashboard-main.png)
 
 *See the [Documentation](https://doj-fraud-agent.netlify.app/) for detailed screenshots and usage examples.*
 
+## Getting Started
+
+### 🚀 **Quick Demo** (Perfect for Interviews)
+```bash
+cd doj_research_clean
+python multi_agent_demo.py
+```
+*Demonstrates all multi-agent concepts in under 2 minutes!*
+
+### 🏗️ **Full System** (Production Ready)
+```bash
+docker compose up
+# Access React Dashboard at http://localhost:3000
+```
+
+### 📚 **Learning Path**
+1. **Start with Demo**: Run `multi_agent_demo.py` to understand concepts
+2. **Explore Architecture**: Review agent implementations in `doj_research_agent/agents/`
+3. **Try Full System**: Use Docker Compose for complete experience
+4. **Customize Agents**: Extend base agent classes for new capabilities
+
 ## Need Help?
-- Check the React dashboard for interactive tips
-- Monitor performance in the [Langfuse Portal](https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores)
-- Use `docker compose logs` for debugging
-- Open an issue or PR—feedback welcome!
+- **Quick Start**: Run the multi-agent demo for immediate understanding
+- **System Monitoring**: Check [Langfuse Portal](https://us.cloud.langfuse.com/project/cmdckuujh0bvnad07ptolsqrb/scores) for agent performance
+- **Development**: Use `docker compose logs` for debugging agent interactions
+- **Community**: Open an issue or PR—multi-agent feedback welcome!
 
 ---
 
