@@ -81,7 +81,7 @@ This tool is an effort to expand the research capabilities of the ACFE by examin
 ---
 ## Architecture
 
-![Multi-Agent Architecture](./images/highlevel-arch)
+![Multi-Agent Architecture](./images/highlevel-arch.png)
 
 ### System Components
 
